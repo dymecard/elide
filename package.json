@@ -1,5 +1,6 @@
 {
   "name": "elide",
+  "version": "2.0.0-b1",
   "devDependencies": {
     "@bazel/labs": "4.6.2"
   }
