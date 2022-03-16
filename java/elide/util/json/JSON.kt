@@ -29,7 +29,7 @@ import com.google.protobuf.Message
 @Suppress("MemberVisibilityCanBePrivate")
 object JSON {
     /** @return Jackson module which can handle Protocol Buffer serialization. */
-    internal fun protoModule(): SimpleModule {
+    @JvmStatic internal fun protoModule(): SimpleModule {
         val proto = SimpleModule(
             "ProtobufMessageModule",
             Version(
@@ -45,16 +45,16 @@ object JSON {
     }
 
     /** @return Shorthand alias for [objectMapper]. */
-    fun mapper(): ObjectMapper = objectMapper()
+    @JvmStatic fun mapper(): ObjectMapper = objectMapper()
 
     /** @return Pre-fab object mapper for JSON operations. */
-    fun objectMapper(): ObjectMapper {
+    @JvmStatic fun objectMapper(): ObjectMapper {
         return objectMapper(ObjectMapper())
     }
 
     /** @return Configured [mapper] with modules and settings. */
     @Suppress("DEPRECATION")
-    fun objectMapper(mapper: ObjectMapper): ObjectMapper {
+    @JvmStatic fun objectMapper(mapper: ObjectMapper): ObjectMapper {
         mapper.configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true)
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
         mapper.configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, false)
