@@ -15,12 +15,40 @@ package(
     default_visibility = ["//visibility:public"],
 )
 
+load(
+    "//tools/defs/java/testing:junit5.bzl",
+    "java_junit5_test",
+)
+load(
+    "//tools/defs/java:java.bzl",
+    "maven",
+)
+load(
+    "//tools/defs/model:model.bzl",
+    "javaproto",
+)
+
+java_junit5_test(
+    name = "ProtoCodecTest",
+    size = "small",
+    testonly = True,
+    srcs = ["ProtoCodecTest.java"],
+    test_package = "elide.util.proto",
+    resources = ["mock-proto.json"],
+    deps = [
+        "//java/elide/util/proto",
+        javaproto("//javatests/elide/model:person"),
+        maven("com.google.truth:truth"),
+        maven("com.google.truth.extensions:truth-proto-extension"),
+        "@com_google_protobuf//java/core",
+        "@elide//third_party/micronaut",
+        "@elide//third_party/micronaut:test",
+    ],
+)
+
 test_suite(
-    name = "driver",
+    name = "proto",
     tests = [
-        "//javatests/elide/driver/inmemory",
-        "//javatests/elide/driver/firestore",
-        "//javatests/elide/driver/redis",
-        "//javatests/elide/driver/spanner",
+        ":ProtoCodecTest",
     ],
 )

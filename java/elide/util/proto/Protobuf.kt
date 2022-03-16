@@ -65,7 +65,7 @@ class Protobuf<M: Message>(
          * @return Proto loader, specialized to type [M].
          */
         @Suppress("UNCHECKED_CAST")
-        @JvmStatic fun <M: Message> forProto(model: M): Protobuf<M> =
+        @JvmStatic fun <M: Message> codecFor(model: M): Protobuf<M> =
                 Protobuf(defaultDialect, model.defaultInstanceForType as M)
 
         /**
@@ -76,7 +76,7 @@ class Protobuf<M: Message>(
          * @param dialect Default dialect to use for the coder.
          * @return Proto loader, specialized to type [M].
          */
-        @JvmStatic fun <M: Message> forProto(model: M, dialect: Dialect): Protobuf<M> =
+        @JvmStatic fun <M: Message> codecFor(model: M, dialect: Dialect): Protobuf<M> =
                 Protobuf(dialect, model)
 
         /**
@@ -209,7 +209,7 @@ class Protobuf<M: Message>(
          * @return Instance of type [M], decoded using the default [Dialect] from the provided [stream].
          */
         @JvmStatic fun <M: Message> read(defaultInstance: M, stream: InputStream): M {
-            return forProto(defaultInstance).decode(
+            return codecFor(defaultInstance).decode(
                 stream,
                 defaultDialect
             )
@@ -227,7 +227,7 @@ class Protobuf<M: Message>(
          * @return Instance of type [M], decoded using the specified [dialect] from the provided [stream].
          */
         @JvmStatic fun <M: Message> read(defaultInstance: M, stream: InputStream, dialect: Dialect): M {
-            return forProto(defaultInstance).decode(
+            return codecFor(defaultInstance).decode(
                 stream,
                 dialect
             )
@@ -244,7 +244,7 @@ class Protobuf<M: Message>(
          * @return Raw bytes resulting from the serialization operation.
          */
         @JvmStatic fun <M: Message> serialize(instance: M): ByteArray {
-            return forProto(instance).encode(
+            return codecFor(instance).encode(
                 instance,
                 defaultDialect
             )
@@ -259,7 +259,7 @@ class Protobuf<M: Message>(
          * @return Raw bytes resulting from the serialization operation.
          */
         @JvmStatic fun <M: Message> serialize(instance: M, dialect: Dialect): ByteArray {
-            return forProto(instance).encode(
+            return codecFor(instance).encode(
                 instance,
                 dialect
             )
@@ -314,7 +314,7 @@ class Protobuf<M: Message>(
          */
         @JvmStatic fun <M: Message> write(instance: M, stream: OutputStream) {
             BufferedOutputStream(stream).use { buf ->
-                forProto(instance).encode(
+                codecFor(instance).encode(
                     instance,
                     buf,
                     defaultDialect
@@ -336,7 +336,7 @@ class Protobuf<M: Message>(
          */
         @JvmStatic fun <M: Message> write(instance: M, stream: OutputStream, dialect: Dialect) {
             BufferedOutputStream(stream).use { buf ->
-                forProto(instance).encode(
+                codecFor(instance).encode(
                     instance,
                     buf,
                     dialect
