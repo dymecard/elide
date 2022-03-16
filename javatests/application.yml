@@ -1,0 +1,4 @@
+
+redis:
+  uri: redis://localhost
+  port: 6379

@@ -537,6 +537,7 @@ maven_install(
         "com.google.truth.extensions:truth-java8-extension:1.1.3",
         "com.nixxcode.jvmbrotli:jvmbrotli:0.2.0",
         "info.picocli:picocli:4.6.3",
+        "it.ozimov:embedded-redis:0.7.1",
         "io.grpc:grpc-all:%s" % GRPC_JAVA_VERSION,
         "io.grpc:grpc-alts:%s" % GRPC_JAVA_VERSION,
         "io.grpc:grpc-android:%s" % GRPC_JAVA_VERSION,

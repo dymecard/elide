@@ -28,7 +28,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 
 /** Tests for the {@link InMemoryAdapter}. */
-@SuppressWarnings("UnstableApiUsage")
 public final class InMemoryAdapterTest extends GenericPersistenceAdapterTest<InMemoryAdapter<PersonKey, Person>> {
   private static ListeningScheduledExecutorService executorService;
   private static InMemoryAdapter<PersonKey, Person> personAdapter;

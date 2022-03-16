@@ -37,6 +37,11 @@ alias(
 )
 
 alias(
+    name = "redis",
+    actual = "//java/elide/driver/redis",
+)
+
+alias(
     name = "spanner",
     actual = "//java/elide/driver/spanner",
 )
@@ -49,6 +54,7 @@ java_library(
         # Built-in Drivers
         ":inmemory",
         ":firestore",
+        ":redis",
         ":spanner",
     ],
 )
@@ -58,6 +64,7 @@ filegroup(
     srcs = glob(["*.java"]) + [
         "//java/elide/driver/inmemory:sources",
         "//java/elide/driver/firestore:sources",
+        "//java/elide/driver/redis:sources",
         "//java/elide/driver/spanner:sources",
     ],
 )

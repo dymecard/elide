@@ -50,7 +50,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /** Tests for the {@link SpannerAdapter}. */
 @Testcontainers
-@SuppressWarnings("UnstableApiUsage")
 public final class SpannerAdapterTest extends GenericPersistenceAdapterTest<
         SpannerAdapter<PersonRecord.PersonKey, PersonRecord.Person>> {
     private static final Logger logging = Logging.logger(SpannerAdapterTest.class);
@@ -255,7 +254,7 @@ public final class SpannerAdapterTest extends GenericPersistenceAdapterTest<
     protected @Nonnull Optional<List<String>> unsupportedDriverTests() {
         return Optional.of(Arrays.asList(
             "storeEntityUpdateNotFound",
-            "storeEntityCollission"
+            "storeEntityCollision"
         ));
     }
 

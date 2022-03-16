@@ -63,6 +63,7 @@ MICRONAUT_SERVICE_DEPS = [
     "@io_grpc_grpc_java//stub",
     _maven("com.google.protobuf:protobuf-java"),
     _maven("com.google.protobuf:protobuf-kotlin"),
+    _maven("io.micronaut:micronaut-inject"),
     _maven("io.micronaut.grpc:micronaut-grpc-runtime"),
     _maven("io.micronaut.grpc:micronaut-grpc-server-runtime"),
 ]

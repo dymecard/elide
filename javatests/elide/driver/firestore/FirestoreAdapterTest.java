@@ -31,15 +31,17 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
 import javax.annotation.Nonnull;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 
 /** Tests for the {@link FirestoreAdapter}. */
 @Testcontainers
-@SuppressWarnings("UnstableApiUsage")
 public final class FirestoreAdapterTest extends GenericPersistenceAdapterTest<FirestoreAdapter<PersonKey, Person>> {
     private static ListeningScheduledExecutorService executorService;
     private static FirestoreAdapter<PersonKey, Person> personAdapter;
@@ -85,6 +87,17 @@ public final class FirestoreAdapterTest extends GenericPersistenceAdapterTest<Fi
         executorService.awaitTermination(5, TimeUnit.SECONDS);
         executorService = null;
         personAdapter = null;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    protected @Nonnull Optional<List<String>> unsupportedDriverTests() {
+        return Optional.of(Stream.concat(
+            super.unsupportedDriverTests().orElse(Collections.emptyList()).stream(), Stream.of(
+                "storeEntityUpdateNotFound",
+                "storeEntityCollision"
+            )
+        ).collect(Collectors.toList()));
     }
 
     /** {@inheritDoc} */

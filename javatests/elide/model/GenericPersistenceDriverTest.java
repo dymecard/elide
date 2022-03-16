@@ -84,11 +84,9 @@ public abstract class GenericPersistenceDriverTest<Driver extends PersistenceDri
       dynamicTest(format("%s: `createEntityThenUpdate`", subcase), this::createEntityThenUpdate),
       dynamicTest(format("%s: `createUpdateWithInvalidOptions`", subcase), this::createUpdateWithInvalidOptions),
       dynamicTest(format("%s: `createEntityThenDelete`", subcase), this::createEntityThenDelete),
-      dynamicTest(format("%s: `createEntityThenDeleteByRecord`", subcase), this::createEntityThenDeleteByRecord)
-
-// @TODO(sgammon): these currently break the Firestore adapter.
-//      dynamicTest(format("%s: `storeEntityUpdateNotFound`", subcase), this::storeEntityUpdateNotFound),
-//      dynamicTest(format("%s: `storeEntityCollission`", subcase), this::storeEntityCollission)
+      dynamicTest(format("%s: `createEntityThenDeleteByRecord`", subcase), this::createEntityThenDeleteByRecord),
+      dynamicTest(format("%s: `storeEntityUpdateNotFound`", subcase), this::storeEntityUpdateNotFound),
+      dynamicTest(format("%s: `storeEntityCollision`", subcase), this::storeEntityCollision)
     );
   }
 
@@ -338,7 +336,7 @@ public abstract class GenericPersistenceDriverTest<Driver extends PersistenceDri
   }
 
   /** Create a simple entity, store it, and then try to store it again. */
-  protected void storeEntityCollission() throws TimeoutException, ExecutionException, InterruptedException {
+  protected void storeEntityCollision() throws TimeoutException, ExecutionException, InterruptedException {
     // persist the record
     Person person1 = Person.newBuilder()
       .setName("John Doe")

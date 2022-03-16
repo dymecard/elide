@@ -30,7 +30,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 
 /** Tests the in-memory adapter with an in-memory cache in front of it. */
-@SuppressWarnings("UnstableApiUsage")
 public final class InMemoryAdapterWithCacheTest extends GenericPersistenceAdapterTest {
   private static ListeningScheduledExecutorService executorService;
   private static InMemoryAdapter<PersonKey, Person> personAdapter;

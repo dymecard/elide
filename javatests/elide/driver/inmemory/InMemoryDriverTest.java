@@ -33,7 +33,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 
 /** Tests for the {@link InMemoryDriver}. */
-@SuppressWarnings("UnstableApiUsage")
 public final class InMemoryDriverTest extends GenericPersistenceDriverTest {
   private static ListeningScheduledExecutorService executorService;
   private static InMemoryDriver<PersonKey, Person> personDriver;

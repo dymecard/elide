@@ -13,6 +13,9 @@
 package elide;
 
 import elide.runtime.jvm.AssetManager;
+import io.micronaut.context.ApplicationContextBuilder;
+import io.micronaut.context.ApplicationContextConfigurer;
+import io.micronaut.context.annotation.ContextConfigurer;
 import io.micronaut.runtime.Micronaut;
 
 
@@ -23,6 +26,16 @@ import io.micronaut.runtime.Micronaut;
  * server to be executed at runtime.
  */
 public final class Application {
+    /** AOT-compatible application customization. These are applied before user-land customizations. */
+    @ContextConfigurer
+    public static class AppConfigurator implements ApplicationContextConfigurer {
+        @Override
+        public void configure(ApplicationContextBuilder context) {
+            context.eagerInitSingletons("true".equals(System.getProperty("elide.eager", "true")));
+            context.banner("true".equals(System.getProperty("elide.banner", "true")));
+        }
+    }
+
     /**
      * Main entrypoint into a Gust backend application, powered by Micronaut. This function will pre-load any static
      * stuff that needs to be bootstrapped, and then it initializes the app via Micronaut.

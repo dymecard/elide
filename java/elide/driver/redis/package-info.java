@@ -10,14 +10,6 @@
  * by trade secret and copyright law. Dissemination of this information, or reproduction of this material, in any form,
  * is strictly forbidden except in adherence with assigned license requirements.
  */
-package elide.driver.firestore;
 
-import elide.model.DatabaseManager;
-
-
-/**
- *
- */
-@SuppressWarnings("rawtypes")
-public final class FirestoreManager implements DatabaseManager<FirestoreAdapter, FirestoreDriver> {
-}
+/** Provides a model adapter and cache implementation for use with Redis. */
+package elide.driver.redis;

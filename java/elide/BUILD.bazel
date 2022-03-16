@@ -139,6 +139,7 @@ java_library(
     deps = [
         "@com_google_code_findbugs_jsr305",
         maven("io.micronaut:micronaut-runtime"),
+        maven("io.micronaut:micronaut-inject"),
     ],
 )
 
@@ -151,6 +152,7 @@ java_library(
         "@com_google_code_findbugs_jsr305",
         maven("io.micronaut:micronaut-runtime"),
         maven("io.micronaut:micronaut-context"),
+        maven("io.micronaut:micronaut-inject"),
     ],
     runtime_deps = [
         maven("io.micronaut:micronaut-runtime"),

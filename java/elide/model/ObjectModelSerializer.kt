@@ -1261,9 +1261,9 @@ class ObjectModelSerializer<Model : Message>
     private val defaultDisposition = ModelSerializer.WriteDisposition.BLIND
 
     /**
-     * Name of a special property within Firebase, that denotes the concrete type for a given generic type. This property is
-     * only specified in cases where the engine has detected and synthesized a concrete type, according to annotations in
-     * the protos specified via the schema.
+     * Name of a special property within Firebase, that denotes the concrete type for a given generic type. This
+     * property is only specified in cases where the engine has detected and synthesized a concrete type, according to
+     * annotations in the protos specified via the schema.
      */
     const val concreteTypeProperty = "concreteType"
 

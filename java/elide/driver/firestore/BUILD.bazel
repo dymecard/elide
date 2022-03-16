@@ -114,16 +114,6 @@ java_library(
 )
 
 java_library(
-    name = "FirestoreManager",
-    srcs = ["FirestoreManager.java"],
-    deps = [
-        ":FirestoreAdapter",
-        ":FirestoreDriver",
-        "//java/elide/model:DatabaseManager",
-    ] + _COMMON_DEPS,
-)
-
-java_library(
     name = "FirestoreTransportConfig",
     srcs = ["FirestoreTransportConfig.java"],
     deps = [
@@ -138,7 +128,6 @@ java_library(
         ":package-info",
         ":FirestoreAdapter",
         ":FirestoreDriver",
-        ":FirestoreManager",
         ":FirestoreTransportConfig",
     ],
 )

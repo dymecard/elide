@@ -133,7 +133,8 @@ public final class EncodedModel implements Serializable, Cloneable {
     return new EncodedModel(
       message.toByteArray(),
       EncodingMode.BINARY,
-      (descriptor != null ? descriptor : message.getDescriptorForType()).getFullName());
+      (descriptor != null ? descriptor : message.getDescriptorForType()).getFullName()
+    );
   }
 
   /**
