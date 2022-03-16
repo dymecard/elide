@@ -14,6 +14,8 @@ package elide.runtime;
 
 import elide.annotations.Generated;
 
+import java.util.Objects;
+
 
 /**
  * Describes a generic, cross-platform interface for application-wide logging tools, which provide functions for

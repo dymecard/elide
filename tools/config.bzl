@@ -114,7 +114,7 @@ GRPC_VERSION = "1.44.0"
 ## gRPC Java version.
 ## ------------------------------------
 ## Sets the version enforced throughout for gRPC's Java layer.
-GRPC_JAVA_VERSION = "1.44.0"
+GRPC_JAVA_VERSION = "1.44.1"
 
 ## gRPC Kotlin version.
 ## ------------------------------------

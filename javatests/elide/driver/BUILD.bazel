@@ -19,5 +19,6 @@ test_suite(
     name = "driver",
     tests = [
         "//javatests/elide/driver/inmemory",
+        "//javatests/elide/driver/firestore",
     ],
 )
