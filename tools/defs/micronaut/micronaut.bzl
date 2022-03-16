@@ -83,7 +83,7 @@ def micronaut_library(
     resolved_plugins = plugins
     if any([src.endswith(".kt") for src in srcs]):
         rule = _kt_jvm_library
-        resolved_plugins += MICRONAUT_KT_PLUGINS
+        resolved_plugins = resolved_plugins + MICRONAUT_KT_PLUGINS
     rule(
         name = name,
         srcs = srcs,
