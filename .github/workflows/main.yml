@@ -26,6 +26,9 @@ jobs:
       with:
         java-version: '11'
         distribution: 'zulu'
+    - uses: elide-dev/setup-swift@v1
+      with:
+        swift-version: "5.5.2"
     - name: 'Set up Cloud SDK'
       uses: 'google-github-actions/setup-gcloud@v0'
       with:
@@ -96,6 +99,9 @@ jobs:
         with:
           java-version: '11'
           distribution: 'zulu'
+      - uses: elide-dev/setup-swift@v1
+        with:
+          swift-version: "5.5.2"
       - name: Install Bazelisk
         run: |
           curl -LO "https://github.com/bazelbuild/bazelisk/releases/download/v1.11.0/bazelisk-darwin-amd64"
