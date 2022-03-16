@@ -140,27 +140,35 @@ def _wire_junit5_test(
         **kwargs
     )
 
-def java_junit5_test(name, srcs, test_package, deps = [], runtime_deps = [], **kwargs):
-    _wire_junit5_test(
-        _java_test,
+def java_junit5_test(
         name,
         srcs,
         test_package,
-        deps,
-        runtime_deps,
+        deps = [],
         use_testrunner = False,
-        classpath_resources = TEST_RESOURCES,
+        classpath_resources = [],
+        runtime_deps = [],
+        **kwargs):
+    _wire_junit5_test(
+        _java_test,
+        name = name,
+        srcs = srcs,
+        test_package = test_package,
+        deps = deps,
+        runtime_deps = runtime_deps,
+        use_testrunner = use_testrunner,
+        classpath_resources = classpath_resources + TEST_RESOURCES,
         **kwargs
     )
 
 def kt_junit5_test(name, srcs, test_package, deps = [], runtime_deps = [], **kwargs):
     _wire_junit5_test(
         _kt_jvm_test,
-        name,
-        srcs,
-        test_package,
-        deps,
-        runtime_deps,
+        name = name,
+        srcs = srcs,
+        test_package = test_package,
+        deps = deps,
+        runtime_deps = runtime_deps,
         extra_filter_args = ["use_testrunner"],
         **kwargs
     )

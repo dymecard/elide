@@ -4,12 +4,14 @@ directories:
   javatests
   third_party
   tools
+  .github
   .
 
 derive_targets_from_directories: true
 
 targets:
   //java/...
+  //elide/...
 
 additional_languages:
   go

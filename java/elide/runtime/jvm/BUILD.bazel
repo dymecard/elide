@@ -18,11 +18,15 @@ package(
 load(
     "//tools/defs/java:java.bzl",
     "java_library",
-)
-
-load(
-    "//tools/defs/java:java.bzl",
     "maven",
+)
+load(
+    "//tools/defs/micronaut:micronaut.bzl",
+    "micronaut_library",
+)
+load(
+    "//tools/defs/model:model.bzl",
+    "javaproto",
 )
 
 java_library(
@@ -62,12 +66,36 @@ alias(
     actual = ":ReactiveFuture",
 )
 
+micronaut_library(
+    name = "AssetManager",
+    srcs = ["AssetManager.java"],
+    deps = [
+        ":LoggingTools",
+        "//java/elide/util:Pair",
+        "//java/elide/util:Hex",
+        javaproto("//elide/proto/core:data"),
+        javaproto("//elide/proto/assets:bundle"),
+        javaproto("//elide/proto/page:page"),
+        maven("com.google.code.findbugs:jsr305"),
+        maven("com.google.protobuf:protobuf-java"),
+        maven("org.reactivestreams:reactive-streams"),
+        maven("io.reactivex.rxjava2:rxjava"),
+        maven("org.slf4j:slf4j-api"),
+    ],
+)
+
+alias(
+    name = "assets",
+    actual = ":AssetManager",
+)
+
 java_library(
     name = "jvm",
     srcs = ["package-info.java"],
     exports = [
         ":logging",
         ":reactive",
+        ":assets",
     ]
 )
 

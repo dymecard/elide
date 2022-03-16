@@ -80,14 +80,16 @@ def micronaut_library(
         **kwargs):
     """Designate a Micronaut (JVM) library."""
     rule = _java_library
+    resolved_plugins = plugins
     if any([src.endswith(".kt") for src in srcs]):
         rule = _kt_jvm_library
+        resolved_plugins += MICRONAUT_KT_PLUGINS
     rule(
         name = name,
         srcs = srcs,
         runtime_deps = runtime_deps + MICRONAUT_RUNTIME_DEPS,
         deps = deps + MICRONAUT_DEPS,
-        plugins = plugins + MICRONAUT_KT_PLUGINS,
+        plugins = resolved_plugins,
     )
 
 def micronaut_service(

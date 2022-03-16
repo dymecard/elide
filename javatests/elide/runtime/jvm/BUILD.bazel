@@ -20,7 +20,10 @@ load(
     "java_library",
     "maven",
 )
-
+load(
+    "//tools/defs/model:model.bzl",
+    "javaproto",
+)
 load(
     "//tools/defs/java/testing:junit5.bzl",
     "java_junit5_test",
@@ -29,6 +32,34 @@ load(
 _COMMON_DEPS = [
     maven("org.slf4j:slf4j-api"),
 ]
+
+exports_files([
+    "assets.pb",
+])
+
+java_junit5_test(
+    name = "AssetManagerTest",
+    srcs = ["AssetManagerTest.java"],
+    test_package = "elide.runtime.jvm",
+    deps = [
+        javaproto("//elide/proto/assets:bundle"),
+        "//java/elide/runtime/jvm:AssetManager",
+        maven("ch.qos.logback:logback-classic"),
+    ] + _COMMON_DEPS,
+    classpath_resources = [
+        ":assets.pb",
+    ],
+)
+
+java_junit5_test(
+    name = "AssetManagerFailTest",
+    srcs = ["AssetManagerFailTest.java"],
+    test_package = "elide.runtime.jvm",
+    deps = [
+        "//java/elide/runtime/jvm:AssetManager",
+        maven("ch.qos.logback:logback-classic"),
+    ] + _COMMON_DEPS,
+)
 
 java_junit5_test(
     name = "LoggingTest",
@@ -59,6 +90,8 @@ java_junit5_test(
 test_suite(
     name = "jvm",
     tests = [
+        ":AssetManagerTest",
+        ":AssetManagerFailTest",
         ":LoggingTest",
         ":ReactiveFutureTest",
     ],

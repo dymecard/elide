@@ -10,3 +10,174 @@
 # by trade secret and copyright law. Dissemination of this information, or reproduction of this material, in any form,
 # is strictly forbidden except in adherence with assigned license requirements.
 ##
+
+package(
+    default_visibility = ["//visibility:public"],
+)
+
+load(
+    "//tools/defs/java:java.bzl",
+    "java_library",
+    "maven",
+)
+load(
+    "//tools/defs/micronaut:micronaut.bzl",
+    "micronaut_library",
+)
+load(
+    "//tools/defs/model:model.bzl",
+    "javaproto",
+)
+
+
+filegroup(
+    name = "sources",
+    srcs = glob(["*.java"]) + [
+        "//java/elide/annotations:sources",
+        "//java/elide/driver:sources",
+        "//java/elide/model:sources",
+        "//java/elide/runtime:sources",
+        "//java/elide/transport:sources",
+    ]
+)
+
+java_library(
+    name = "package-info",
+    srcs = ["package-info.java"],
+)
+
+#micronaut_library(
+#    name = "AppController",
+#    srcs = ["AppController.java"],
+#    deps = [
+#        ":AssetConfiguration",
+#        ":BaseController",
+#        ":PageRender",
+#        ":PageContext",
+#        ":PageContextManager",
+#        ":DynamicServingConfiguration",
+#        "@safe_html_types//:proto",
+#        "@safe_html_types//:java-proto",
+#        javaproto("//elide/proto/page:page_proto"),
+#    ],
+#)
+
+#micronaut_library(
+#    name = "BaseController",
+#    srcs = ["BaseController.java"],
+#    deps = [
+#        ":PageContext",
+#        ":PageContextManager",
+#    ]
+#)
+
+#micronaut_library(
+#    name = "DynamicServingConfiguration",
+#    srcs = ["DynamicServingConfiguration.java"],
+#    deps = [
+#        javaproto("//elide/proto/assets:bundle_proto"),
+#        javaproto("//elide/proto/page:page_proto"),
+#    ],
+#)
+
+#micronaut_library(
+#    name = "PageRender",
+#    srcs = ["PageRender.java"],
+#    proto_deps = ["//elide/proto/page:page_proto"],
+#)
+
+#micronaut_library(
+#    name = "PageContext",
+#    srcs = ["PageContext.java"],
+#    deps = [":PageRender"],
+#    proto_deps = ["//elide/proto/page:page_proto"],
+#)
+
+#micronaut_library(
+#    name = "PageContextManager",
+#    srcs = ["PageContextManager.java"],
+#    deps = [
+#        ":PageContext",
+#        ":PageRender",
+#        javaproto("//elide/proto/assets:bundle_proto"),
+#        "//java/elide/runtime",
+#        "//java/elide/runtime/jvm",
+#        "//java/elide/util:Hex",
+#        "@safe_html_types//:proto",
+#        "@safe_html_types//:java-proto",
+#    ],
+#)
+
+#micronaut_library(
+#    name = "AssetConfiguration",
+#    srcs = ["AssetConfiguration.java"],
+#    deps = [
+#        javaproto("//elide/proto/core:data"),
+#        javaproto("//elide/proto/page:page_proto"),
+#    ],
+#)
+
+#micronaut_library(
+#    name = "AssetController",
+#    srcs = ["AssetController.java"],
+#    deps = [
+#        ":AssetConfiguration",
+#        ":BaseController",
+#        ":PageContext",
+#        ":PageContextManager",
+#        "//java/elide/runtime/jvm:AssetManager",
+#        "//java/elide/util:Hex",
+#        javaproto("//elide/proto/core:data"),
+#        maven("org.reactivestreams:reactive-streams"),
+#        maven("io.micronaut.security:micronaut-security-annotations"),
+#    ],
+#)
+
+java_library(
+    name = "ApplicationBoot",
+    srcs = ["ApplicationBoot.java"],
+    deps = [
+        "@com_google_code_findbugs_jsr305",
+        maven("io.micronaut:micronaut-runtime"),
+    ],
+)
+
+java_library(
+    name = "Application",
+    srcs = ["Application.java"],
+    deps = [
+        ":ApplicationBoot",
+        "//java/elide/runtime/jvm:AssetManager",
+        "@com_google_code_findbugs_jsr305",
+        maven("io.micronaut:micronaut-runtime"),
+        maven("io.micronaut:micronaut-context"),
+    ],
+    runtime_deps = [
+        maven("io.micronaut:micronaut-runtime"),
+    ],
+)
+
+java_library(
+    name = "elide",
+    runtime_deps = [
+        ":Application",
+    ],
+    exports = [
+        # Base Package
+        ":package-info",
+        ":ApplicationBoot",
+        ":Application",
+
+        # Annotations
+        "//java/elide/annotations",
+
+        # Model Tooling
+        "//java/elide/model",
+
+        # Built-in Drivers
+        "//java/elide/driver",
+
+        # Transport Tooling
+        "//java/elide/transport",
+    ],
+)
