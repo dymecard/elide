@@ -40,7 +40,6 @@ import static elide.model.ModelMetadata.*;
  *
  * @param <Model> Model/message type which we are storing with this driver.
  */
-@SuppressWarnings("UnstableApiUsage")
 public final class InMemoryDriver<Key extends Message, Model extends Message>
         implements PersistenceDriver<Key, Model, EncodedModel, EncodedModel> {
     /** Private logging pipe. */

@@ -36,7 +36,6 @@ import java.util.concurrent.TimeUnit;
  * @param <M> Type of model supported by this cache facade.
  */
 @ThreadSafe
-@SuppressWarnings("UnstableApiUsage")
 public final class InMemoryCache<K extends Message, M extends Message> implements CacheDriver<K, M> {
     /** Static in-memory instance cache. */
     private final static @Nonnull InMemoryCaching CACHE = new InMemoryCaching();

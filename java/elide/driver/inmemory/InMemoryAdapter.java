@@ -30,7 +30,6 @@ import java.util.concurrent.ExecutorService;
  * stores entities as opaque blobs, so it doesn't care how they are serialized or inflated. Queries are not supported by
  * this engine.</p>
  */
-@SuppressWarnings("UnstableApiUsage")
 public final class InMemoryAdapter<Key extends Message, Model extends Message>
         implements ModelAdapter<Key, Model, EncodedModel, EncodedModel> {
     /** Specifies the format to use. One of `BINARY`, `JSON`, or `TEXT`. */
