@@ -28,13 +28,18 @@ java_library(
 
 alias(
     name = "inmemory",
-    actual = "//java/elide/driver/inmemory:inmemory",
+    actual = "//java/elide/driver/inmemory",
 )
 
-#alias(
-#    name = "firestore",
-#    actual = "//java/elide/driver/firestore:firestore",
-#)
+alias(
+    name = "firestore",
+    actual = "//java/elide/driver/firestore",
+)
+
+alias(
+    name = "spanner",
+    actual = "//java/elide/driver/spanner",
+)
 
 java_library(
     name = "driver",
@@ -43,7 +48,8 @@ java_library(
 
         # Built-in Drivers
         ":inmemory",
-#        ":firestore",
+        ":firestore",
+        ":spanner",
     ],
 )
 
@@ -51,6 +57,7 @@ filegroup(
     name = "sources",
     srcs = glob(["*.java"]) + [
         "//java/elide/driver/inmemory:sources",
-#        "//java/elide/driver/firestore:sources",
+        "//java/elide/driver/firestore:sources",
+        "//java/elide/driver/spanner:sources",
     ],
 )

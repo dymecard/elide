@@ -20,5 +20,6 @@ test_suite(
     tests = [
         "//javatests/elide/driver/inmemory",
         "//javatests/elide/driver/firestore",
+        "//javatests/elide/driver/spanner",
     ],
 )
