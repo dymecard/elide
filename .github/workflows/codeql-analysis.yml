@@ -12,6 +12,7 @@ jobs:
   codeql:
     name: CodeQL
     runs-on: ubuntu-latest
+
     permissions:
       actions: read
       contents: read
@@ -20,7 +21,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: [ 'java', 'go', 'javascript', 'typescript', 'python', 'ruby' ]
+        language: [ 'java' ]
 
     steps:
       - name: Checkout repository

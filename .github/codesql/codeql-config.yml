@@ -1,0 +1,12 @@
+name: "Elide"
+
+queries:
+  - uses: security-and-quality
+
+paths:
+  - elide
+  - java
+paths-ignore:
+  - external
+  - third_party
+
