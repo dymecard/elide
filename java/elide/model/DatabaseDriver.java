@@ -19,5 +19,5 @@ import com.google.protobuf.Message;
  *
  */
 public interface DatabaseDriver<Key extends Message, Model extends Message, ReadRecord, WriteRecord>
-  extends PersistenceDriver<Key, Model, ReadRecord, WriteRecord> {
+        extends PersistenceDriver<Key, Model> {
 }

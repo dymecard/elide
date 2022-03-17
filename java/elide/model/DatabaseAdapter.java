@@ -25,7 +25,7 @@ import javax.annotation.Nonnull;
  * @param <Model> Message type which this database adapter is handling.
  */
 public interface DatabaseAdapter<Key extends Message, Model extends Message, ReadRecord, WriteRecord>
-  extends ModelAdapter<Key, Model, ReadRecord, WriteRecord> {
+  extends ModelAdapter<Key, Model> {
   /**
    * Return the lower-level {@link DatabaseDriver} powering this adapter. The driver is responsible for communicating
    * with the actual database or storage service, either via local stubs/emulators or a production API.

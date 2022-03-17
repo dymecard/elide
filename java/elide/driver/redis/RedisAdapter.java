@@ -30,8 +30,7 @@ import java.util.concurrent.ExecutorService;
  * {@link RedisCache} doesn't win much over Redis-based persistence, in this case, see the in-memory adapter for
  * caching. Queries are not supported by this engine.</p>
  */
-public final class RedisAdapter<Key extends Message, Model extends Message>
-        implements ModelAdapter<Key, Model, EncodedModel, EncodedModel> {
+public final class RedisAdapter<Key extends Message, Model extends Message> implements ModelAdapter<Key, Model> {
     /** Specifies the format to use. One of `BINARY`, `JSON`, or `TEXT`. */
     private static final EncodingMode FORMAT = EncodingMode.BINARY;
 

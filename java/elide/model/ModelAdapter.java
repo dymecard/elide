@@ -50,12 +50,10 @@ import static elide.model.ModelMetadata.*;
  * @see DatabaseAdapter Extends this interface with richer data engine features.
  * @param <Key> Key type, instances of which uniquely address instances of {@code Model}.
  * @param <Model> Model type which this adapter is responsible for adapting.
- * @param <ReadIntermediate> Intermediate record format used by the implementation when de-serializing model instances.
- * @param <WriteIntermediate> Intermediate record format used when serializing model instances for write.
  */
 @SuppressWarnings("UnstableApiUsage")
-public interface ModelAdapter<Key extends Message, Model extends Message, ReadIntermediate, WriteIntermediate>
-  extends PersistenceDriver<Key, Model, ReadIntermediate, WriteIntermediate> {
+public interface ModelAdapter<Key extends Message, Model extends Message>
+  extends PersistenceDriver<Key, Model> {
   // -- Interface: Drivers -- //
   /**
    * Return the cache driver in use for this particular model adapter. If a cache driver is present, and active/enabled
@@ -71,7 +69,7 @@ public interface ModelAdapter<Key extends Message, Model extends Message, ReadIn
    *
    * @return Persistence driver instance currently in use by this model adapter.
    */
-  @Nonnull PersistenceDriver<Key, Model, ReadIntermediate, WriteIntermediate> engine();
+  @Nonnull PersistenceDriver<Key, Model> engine();
 
   // -- Interface: Execution -- //
   /** {@inheritDoc} */

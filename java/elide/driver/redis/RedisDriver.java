@@ -38,8 +38,7 @@ import static java.lang.String.format;
  *
  * @param <Model> Model/message type which we are storing with this driver.
  */
-public final class RedisDriver<Key extends Message, Model extends Message>
-        implements PersistenceDriver<Key, Model, EncodedModel, EncodedModel> {
+public final class RedisDriver<Key extends Message, Model extends Message> implements PersistenceDriver<Key, Model> {
     /** Private logging pipe. */
     private static final Logger logging = Logging.logger(RedisDriver.class);
 

@@ -40,8 +40,7 @@ import static elide.model.ModelMetadata.*;
  *
  * @param <Model> Model/message type which we are storing with this driver.
  */
-public final class InMemoryDriver<Key extends Message, Model extends Message>
-        implements PersistenceDriver<Key, Model, EncodedModel, EncodedModel> {
+public final class InMemoryDriver<Key extends Message, Model extends Message> implements PersistenceDriver<Key, Model> {
     /** Private logging pipe. */
     private static final Logger logging = Logging.logger(InMemoryStorage.class);
 

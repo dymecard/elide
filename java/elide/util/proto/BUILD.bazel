@@ -33,6 +33,10 @@ kt_jvm_library(
         maven("com.google.protobuf:protobuf-kotlin"),
         maven("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm"),
     ],
+    exports = [
+        "@com_google_protobuf//java/core",
+        "@com_google_protobuf//java/util",
+    ],
 )
 
 alias(

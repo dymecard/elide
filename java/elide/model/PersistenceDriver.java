@@ -57,15 +57,11 @@ import static elide.model.ModelMetadata.*;
  * @see DatabaseDriver <pre>`DatabaseDriver`</pre> for drivers with rich features and/or strong durability guarantees.
  * @param <Key> Key record type (must be annotated with model role {@code OBJECT_KEY}).
  * @param <Model> Message/model type which this persistence driver is specialized for.
- * @param <ReadIntermediate> Intermediate record format used by the underlying driver implementation during model
- *                           de-serialization.
- * @param <WriteIntermediate> Intermediate record format used by the underlying driver implementation during model
- *                           serialization.
  */
 @Immutable
 @ThreadSafe
 @SuppressWarnings({"unused", "UnstableApiUsage"})
-public interface PersistenceDriver<Key extends Message, Model extends Message, ReadIntermediate, WriteIntermediate> {
+public interface PersistenceDriver<Key extends Message, Model extends Message> {
   /** Default timeout to apply when otherwise unspecified. */
   long DEFAULT_TIMEOUT = 30;
 
@@ -187,7 +183,7 @@ public interface PersistenceDriver<Key extends Message, Model extends Message, R
    *
    * @return Model codec currently in use by this adapter.
    */
-  @Nonnull ModelCodec<Model, WriteIntermediate, ReadIntermediate> codec();
+  @Nonnull ModelCodec codec();
 
   // -- API: Key Generation -- //
   /**
