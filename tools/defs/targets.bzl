@@ -112,6 +112,8 @@ def protos(
         package = None,
         package_srcs = [],
         package_kwargs = {},
+        go_import = None,
+        go_deps = [],
         **kwargs):
     """Given a list of names, produce a corresponding fanned-out set of Protocol Buffer model targets via `rule`.
        Provide the entry value to each member of `srcs`, `deps`, and `runtime_deps`, and apply any `kwargs` to the
@@ -133,6 +135,8 @@ def protos(
        :param package: Special case: Rollup all sources into an exports-only `rule` at this name.
        :param package_srcs: All package sources which should roll-up for proto-doc purposes.
        :param package_kwargs: Additional keyword arguments to pass to the rolled-up `rule`.
+       :param go_import: Go import path to use as a base for these modules. All will be added at `{path}/{name}_proto`.
+       :param go_deps: Extra Go protocol buffer dependencies to include in any Go targets.
        :param kwargs: Keyword arguments to pass along to each invocation of `rule`.
        """
 
@@ -141,6 +145,8 @@ def protos(
             name = _replace(name or "%s", t),
             srcs = _replace_all(srcs, t),
             deps = _replace_all(deps, t) + _dep_lookup(extra_deps, t),
+            go_import = _replace(go_import or "%s", t),
+            go_deps = go_deps,
             **kwargs
         ) for t in protos
     ]

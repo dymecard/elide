@@ -21,6 +21,10 @@ load(
     _kt_jvm_proto_library = "kt_jvm_proto_library",
 )
 load(
+    "@io_bazel_rules_go//proto:def.bzl",
+    _go_proto_library = "go_proto_library",
+)
+load(
     "@com_google_protobuf//:protobuf.bzl",
     _py_proto_library = "py_proto_library",
 )
@@ -33,10 +37,12 @@ load(
     _target_name = "target_name",
 )
 
+GO = False
 SWIFT = True
 PYTHON = False
 KOTLIN = True
 TYPESCRIPT = True
+GO_POSTFIX = "goproto"
 KT_POSTFIX = "ktproto"
 JAVA_POSTFIX = "javaproto"
 SWIFT_POSTFIX = "swiftproto"
@@ -57,7 +63,7 @@ def _descriptor_impl(ctx):
       command='cat %s > %s' % (
           ' '.join(_paths(descriptors)), ctx.outputs.out.path))
 
-def declare_model(name, **kwargs):
+def declare_model(name, go_import = None, go_deps = [], **kwargs):
     """Declare a Protocol Buffer model."""
 
     base = ":%s" % name
@@ -78,6 +84,17 @@ def declare_model(name, **kwargs):
         name = _target_name(name, CLOSURE_POSTFIX),
         deps = [base],
     )
+
+    if GO:
+        # Proto: Go.
+        _go_proto_library(
+            name = _target_name(name, GO_POSTFIX),
+            importpath = go_import,
+            protos = [base],
+            deps = [
+                goproto(d) for d in kwargs.get("deps", []) if (d.startswith("@elide") or not d.startswith("@"))
+            ] + go_deps,
+        )
 
     if KOTLIN:
         # Proto: Kotlin.
@@ -124,6 +141,10 @@ def well_known(name, actual, **kwargs):
         name = name,
         actual = "%s_wellknown" % name,
     )
+
+def goproto(target):
+    """Calculate a target name for a Go protocol buffer."""
+    return _target_name(target, GO_POSTFIX)
 
 def ktproto(target):
     """Calculate a target name for a Kotlin protocol buffer."""

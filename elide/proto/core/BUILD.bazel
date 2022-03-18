@@ -149,4 +149,5 @@ model(
     deps = [
         "@com_google_protobuf//:descriptor_proto",
     ],
+    go_import = "github.com/elide-tools/elide/core/datamodel",
 )
