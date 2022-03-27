@@ -329,7 +329,6 @@ java_library(
         ":WriteOptions",
         javaproto("//elide/proto/core:datamodel"),
         maven("com.google.errorprone:error_prone_annotations"),
-        maven("io.reactivex.rxjava2:rxjava"),
         maven("org.reactivestreams:reactive-streams"),
     ] + _COMMON_DEPS,
 )

@@ -57,7 +57,6 @@ java_library(
         maven("com.google.guava:failureaccess"),
         maven("com.google.protobuf:protobuf-java"),
         maven("org.reactivestreams:reactive-streams"),
-        maven("io.reactivex.rxjava2:rxjava"),
     ],
 )
 
@@ -79,7 +78,6 @@ micronaut_library(
         maven("com.google.code.findbugs:jsr305"),
         maven("com.google.protobuf:protobuf-java"),
         maven("org.reactivestreams:reactive-streams"),
-        maven("io.reactivex.rxjava2:rxjava"),
         maven("org.slf4j:slf4j-api"),
     ],
 )
