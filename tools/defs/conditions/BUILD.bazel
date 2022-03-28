@@ -23,6 +23,13 @@ config_setting(
 )
 
 config_setting(
+    name = "javadebug",
+    values = {
+        "define": "jvmdebug=on",
+    },
+)
+
+config_setting(
     name = "release",
     values = {
         "compilation_mode": "opt",

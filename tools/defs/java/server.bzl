@@ -71,6 +71,24 @@ ASSET_DIGEST_ALGORITHM = "SHA512"
 ASSETS_ENABLE_GZIP = True
 ASSETS_ENABLE_BROTLI = True
 
+BASE_JVM_FLAGS = [
+    "-Delide=true",
+]
+
+DEBUG_JVM_FLAGS = BASE_JVM_FLAGS + [
+    "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005",
+]
+
+RELEASE_JVM_FLAGS = BASE_JVM_FLAGS + [
+    # Nothing at this time.
+]
+
+JVM_FLAGS = select({
+    "//tools/defs/conditions:release": RELEASE_JVM_FLAGS,
+    "//tools/defs/conditions:javadebug": DEBUG_JVM_FLAGS,
+    "//conditions:default": BASE_JVM_FLAGS,
+})
+
 
 def server_binary(
         name,
@@ -91,6 +109,7 @@ def server_binary(
         docker_repository = None,
         docker_format = "Docker",
         jvm_image_base = None,
+        jvm_flags = JVM_FLAGS,
         jvm_image_repository = None,
         native_image_base = None,
         native_image_repository = None,
@@ -139,6 +158,7 @@ def server_binary(
     binargs = {
         "name": "%s.jvm" % name,
         "main_class": main_class,
+        "jvm_flags": jvm_flags,
         "runtime_deps": runtime_deps + libdeps,
     }
     binargs.update(kwargs)
