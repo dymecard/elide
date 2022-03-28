@@ -43,6 +43,11 @@ kt_jvm_library(
         maven("io.micronaut:micronaut-jackson-core"),
         maven("io.micronaut:micronaut-jackson-databind"),
     ],
+    exports = [
+        maven("com.fasterxml.jackson.core:jackson-annotations"),
+        maven("com.fasterxml.jackson.core:jackson-core"),
+        maven("com.fasterxml.jackson.core:jackson-databind"),
+    ],
 )
 
 alias(
