@@ -427,6 +427,10 @@ load("@io_bazel_rules_docker//repositories:deps.bzl", container_deps = "deps")
 
 container_deps()
 
+load("@io_bazel_rules_docker//java:image.bzl", java_image_repos = "repositories")
+
+java_image_repos()
+
 load("@rules_jvm_external//:defs.bzl", "maven_install")
 load("@rules_jvm_external//:specs.bzl", "maven")
 load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories", "yarn_install")

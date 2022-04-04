@@ -3,6 +3,10 @@ load(
     _container_image = "container_image",
 )
 load(
+    "@io_bazel_rules_docker//java:image.bzl",
+    _java_image = "java_image",
+)
+load(
     "@io_bazel_rules_docker//container:push.bzl",
     _container_push = "container_push",
 )
@@ -110,6 +114,7 @@ def server_binary(
         docker_format = "Docker",
         jvm_image_base = None,
         jvm_flags = JVM_FLAGS,
+        jvm_image_layers = [],
         jvm_image_repository = None,
         native_image_base = None,
         native_image_repository = None,
@@ -156,7 +161,6 @@ def server_binary(
         )
 
     binargs = {
-        "name": "%s.jvm" % name,
         "main_class": main_class,
         "jvm_flags": jvm_flags,
         "runtime_deps": runtime_deps + libdeps,
@@ -166,12 +170,14 @@ def server_binary(
     ## Targets: JVM
     if ENABLE_KT_BINARY:
         _kt_jvm_binary(
+            name = "%s.jvm" % name,
             srcs = srcs,
             deps = deps,
             **binargs
         )
     else:
         _java_binary(
+            name = "%s.jvm" % name,
             **binargs
         )
 
@@ -199,13 +205,14 @@ def server_binary(
     resolved_jvm_image_repository = jvm_image_repository or ("%s/jvm" % docker_repository)
     resolved_native_image_repository = native_image_repository or ("%s/native" % docker_repository)
 
-    _container_image(
+    _java_image(
         name = "%s.jvm.image" % name,
         base = jvm_image_base or "@graalvm_base//image",
-        files = [":%s.jvm_deploy.jar" % name],
-        entrypoint = ["java", "-jar"],
-        cmd = ["%s.jvm_deploy.jar" % name],
         tags = ["no-ide"],
+        layers = [
+            ":%s.jvm" % name,
+        ] + (jvm_image_layers or []),
+        **binargs
     )
     _container_push(
         name = "%s.jvm.image.push" % name,
