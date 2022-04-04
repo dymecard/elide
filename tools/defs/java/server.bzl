@@ -209,9 +209,7 @@ def server_binary(
         name = "%s.jvm.image" % name,
         base = jvm_image_base or "@graalvm_base//image",
         tags = ["no-ide"],
-        layers = [
-            ":%s.jvm" % name,
-        ] + (jvm_image_layers or []),
+        layers = (jvm_image_layers or []),
         **binargs
     )
     _container_push(
