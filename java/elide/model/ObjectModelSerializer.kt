@@ -24,6 +24,7 @@ import elide.model.ModelSerializer.InstantSerializeMode
 import elide.runtime.jvm.Logging
 import elide.util.InstantFactory
 import tools.elide.core.*
+import tools.elide.core.Datamodel.opts
 import java.util.*
 import javax.annotation.Nonnull
 import javax.annotation.concurrent.Immutable
@@ -151,7 +152,7 @@ class ObjectModelSerializer<Model : Message>
    * @param data Data value to wrap.
    * @return Value builder, pre-filled with the data.
    */
-  private fun <T> wrapValue(value: Value.Builder, type: FieldType, data: T): Value.Builder {
+  private fun <T> wrapValue(pointer: FieldDescriptor, value: Value.Builder, type: FieldType, data: T): Value.Builder {
     return when (type) {
       FieldType.INT32, FieldType.UINT32, FieldType.SINT32, FieldType.INT64,
       FieldType.UINT64, FieldType.SINT64, FieldType.FIXED32, FieldType.FIXED64,
@@ -200,11 +201,23 @@ class ObjectModelSerializer<Model : Message>
         }
       }
       FieldType.STRING -> {
+        val fproto = pointer.toProto()
+        val opts = if (fproto.hasOptions() && fproto.options.hasExtension(Datamodel.field)) {
+          fproto.options.getExtension(Datamodel.field)
+        } else {
+          null
+        }
+
+        // based on the opt-in type, do translation to/from a special Firestore value, or fallback.
         val decoded = data as? String
         if (decoded == null) {
           null
-        } else {
-          value.setStringValue(decoded)
+        } else when (opts?.type) {
+          // if this is explicitly a reference field, set it that way.
+          tools.elide.core.FieldType.REFERENCE -> value.setReferenceValue(decoded)
+
+          // otherwise, just treat it as a normal string.
+          else -> value.setStringValue(decoded)
         }
       }
       FieldType.BYTES -> {
@@ -242,7 +255,7 @@ class ObjectModelSerializer<Model : Message>
       for (innerValue in targetList) {
         // encode a value raw
         val innerWrapped = Value.newBuilder()
-        val wrapped = this.wrapValue(innerWrapped, field.type, innerValue)
+        val wrapped = this.wrapValue(field, innerWrapped, field.type, innerValue)
         value.addValues(wrapped)
       }
       value.build()
@@ -1017,7 +1030,11 @@ class ObjectModelSerializer<Model : Message>
         FieldType.FIXED32, FieldType.FIXED64, FieldType.SFIXED32, FieldType.SFIXED64, FieldType.FLOAT,
         FieldType.DOUBLE -> extractAndSetValue(proto, base, field, value, value::setDoubleValue)
         FieldType.BOOL -> extractAndSetValue(proto, base, field, value, value::setBooleanValue)
-        FieldType.STRING -> extractAndSetValue(proto, base, field, value, value::setStringValue)
+        FieldType.STRING -> {
+          extractAndSetValue<String>(proto, base, field, value) {
+            this.wrapValue(field, value, field.type, it)
+          }
+        }
         FieldType.BYTES -> extractAndSetValue(proto, base, field, value, bytesEncoder(value::setStringValue))
         FieldType.ENUM -> extractEnum(proto, base, field, value, persistenceOptions)
         FieldType.GROUP, FieldType.MESSAGE -> extractSubmessage(

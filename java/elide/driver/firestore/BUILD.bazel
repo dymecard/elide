@@ -101,6 +101,8 @@ java_library(
         maven("com.google.cloud:google-cloud-core-grpc"),
     ] + _COMMON_DEPS,
     exports = [
+        "//java/elide/runtime/jvm:ReactiveFuture",
+        "//java/elide/model:ModelMetadata",
         maven("io.grpc:grpc-api"),
         maven("io.grpc:grpc-core"),
         maven("io.grpc:grpc-auth"),

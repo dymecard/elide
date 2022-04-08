@@ -561,6 +561,7 @@ maven_install(
         "io.grpc:grpc-protobuf-lite:%s" % GRPC_JAVA_VERSION,
         "io.grpc:grpc-xds:%s" % GRPC_JAVA_VERSION,
         "io.grpc:grpc-kotlin-stub:1.2.1",
+        "io.reactivex.rxjava2:rxjava:2.2.21",
         "io.lettuce:lettuce-core:6.1.6.RELEASE",
         "io.micronaut:micronaut-aop:%s" % MICRONAUT_VERSION,
         "io.micronaut:micronaut-core:%s" % MICRONAUT_VERSION,
