@@ -37,4 +37,9 @@ public interface WriteOptions extends OperationOptions {
   default @Nonnull Optional<WriteDisposition> writeMode() {
     return Optional.empty();
   }
+
+  /** @return Write prefix specified for this operation, if any, otherwise, {@link Optional#empty()}. */
+  default @Nonnull Optional<String> writePrefix() {
+    return Optional.empty();
+  }
 }

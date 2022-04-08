@@ -27,11 +27,15 @@ import javax.annotation.concurrent.ThreadSafe
  * Specifies a [ModelCodec] which uses [CollapsedMessage] instances and native Java types to model business
  * data. This codec uses the partner [ObjectModelSerializer] and [ObjectModelDeserializer] to go between
  * these alternate/intermediate representations and [Message] instances.
+ *
+ * @param instance Model instance which we are building this codec for.
  */
 @Immutable
 @ThreadSafe
-class ObjectModelCodec<Model: Message> private constructor(@Nonnull private val instance: Model) :
-        ModelCodec<Model, Map<String, *>, Map<String, *>> {
+class ObjectModelCodec<Model: Message> private constructor (
+      @Nonnull private val instance: Model,
+      @Nonnull private val referencePrefix: String? = ""
+  ): ModelCodec<Model, Map<String, *>, Map<String, *>> {
   /**
    * @return Builder for the model handled by this codec.
    */
@@ -77,12 +81,13 @@ class ObjectModelCodec<Model: Message> private constructor(@Nonnull private val 
      *
      * @param <M> Model type for which we are acquiring an object codec.
      * @param messageInstance Message instance (empty) to use for type information.
+     * @param referencePrefix Prefix to use for message references.
      * @return Object model codec for the provided data model.
      */
     @Nonnull
     @Suppress("unused")
-    fun <M : Message> forModel(messageInstance: M): ObjectModelCodec<M> {
-      return forModel(messageInstance.newBuilderForType())
+    fun <M : Message> forModel(messageInstance: M, referencePrefix: String? = null): ObjectModelCodec<M> {
+      return forModel(messageInstance.newBuilderForType(), referencePrefix)
     }
 
     /**
@@ -91,13 +96,14 @@ class ObjectModelCodec<Model: Message> private constructor(@Nonnull private val 
      *
      * @param <M> Model type for which we are acquiring an object codec.
      * @param messageBuilder Message builder (empty) to use for type information.
+     * @param referencePrefix Prefix to use for message references.
      * @return Object model codec for the provided data model.
      */
     @Nonnull
     @Suppress("unused")
-    fun <M : Message> forModel(messageBuilder: Message.Builder): ObjectModelCodec<M> {
+    fun <M : Message> forModel(messageBuilder: Message.Builder, referencePrefix: String? = null): ObjectModelCodec<M> {
       @Suppress("UNCHECKED_CAST")
-      return ObjectModelCodec(messageBuilder.defaultInstanceForType as M)
+      return ObjectModelCodec(messageBuilder.defaultInstanceForType as M, referencePrefix)
     }
   }
 }

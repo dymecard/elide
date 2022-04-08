@@ -152,7 +152,11 @@ public final class FirestoreDriver<Key extends Message, Model extends Message>
         credentialsProvider,
         transportOptions,
         executorService,
-        CollapsedMessageCodec.forModel(instance, DocumentSnapshotDeserializer.forModel(instance)));
+        CollapsedMessageCodec.forModel(
+              baseOptions.build().getProjectId(),  // @TODO(sgammon) avoid building
+              instance,
+              DocumentSnapshotDeserializer.forModel(instance)
+        ));
     }
   }
 
@@ -453,7 +457,7 @@ public final class FirestoreDriver<Key extends Message, Model extends Message>
       var that = this;
 
       return ReactiveFuture.wrap(engine.runTransaction(transaction -> {
-        serialized.persist(null, new WriteProxy<DocumentReference>() {
+        serialized.persist(options.writePrefix().orElse(null), new WriteProxy<DocumentReference>() {
           @Override
           public @Nonnull DocumentReference ref(@Nonnull String path, @Nullable String prefix) {
             return that.ref(path, prefix);

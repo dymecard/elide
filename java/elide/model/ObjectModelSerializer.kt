@@ -24,7 +24,6 @@ import elide.model.ModelSerializer.InstantSerializeMode
 import elide.runtime.jvm.Logging
 import elide.util.InstantFactory
 import tools.elide.core.*
-import tools.elide.core.Datamodel.opts
 import java.util.*
 import javax.annotation.Nonnull
 import javax.annotation.concurrent.Immutable
@@ -61,8 +60,10 @@ class ObjectModelSerializer<Model : Message>
     /** Typed enumeration serialization mode.  */
     @field:Nonnull @param:Nonnull private val enumMode: EnumSerializeMode,
     /** Temporal instant serialization mode.  */
-    @field:Nonnull @param:Nonnull private val instantMode: InstantSerializeMode)
-  : ModelSerializer<Model, Map<String, *>> {
+    @field:Nonnull @param:Nonnull private val instantMode: InstantSerializeMode,
+    /** Prefix to use for reference values.  */
+    @field:Nonnull @param:Nonnull private val referencePrefix: String
+  ): ModelSerializer<Model, Map<String, *>> {
   /** @return Empty serialized object. */
   private fun serializedObject(): SerializedModel = SerializedModel.factory()
 
@@ -74,7 +75,7 @@ class ObjectModelSerializer<Model : Message>
    * @param id ID for the model we are generating a reference for.
    */
   @Suppress("MemberVisibilityCanBePrivate")
-  fun referenceValue(type: String, id: String): String = "$type/$id"
+  fun referenceValue(type: String, id: String): String = "$referencePrefix$type/$id"
 
   /**
    * Extract, as a [List], items from a repeated field value.
@@ -1312,13 +1313,15 @@ class ObjectModelSerializer<Model : Message>
       @Nonnull includeNulls: Boolean,
       @Nonnull emptyListsAsNulls: Boolean,
       @Nonnull enumMode: EnumSerializeMode,
-      @Nonnull instantMode: InstantSerializeMode): ObjectModelSerializer<M> {
+      @Nonnull instantMode: InstantSerializeMode,
+      @Nonnull referencePrefix: String): ObjectModelSerializer<M> {
       return ObjectModelSerializer(
         includeDefaults,
         includeNulls,
         emptyListsAsNulls,
         enumMode,
-        instantMode
+        instantMode,
+        referencePrefix
       )
     }
 
@@ -1327,15 +1330,17 @@ class ObjectModelSerializer<Model : Message>
      * for serializer settings.
      *
      * @param <M> Model type to acquire an object model serializer for.
+     * @param prefix Reference prefix to use.
      * @return Serializer, customized to the specified type.
      */
-    fun <M: Message> defaultInstance(): ObjectModelSerializer<M> {
+    fun <M: Message> defaultInstance(prefix: String? = null): ObjectModelSerializer<M> {
       return withSettings(
         includeDefaults = false,
         includeNulls = false,
         emptyListsAsNulls = true,
         enumMode = EnumSerializeMode.NAME,
-        instantMode = InstantSerializeMode.TIMESTAMP
+        instantMode = InstantSerializeMode.TIMESTAMP,
+        referencePrefix = prefix ?: ""
       )
     }
 

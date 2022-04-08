@@ -39,16 +39,18 @@ public final class CollapsedMessageCodec<Model extends Message, ReadIntermediate
   private final Model instance;
 
   /** Singleton access to serializer. */
-  private final CollapsedMessageSerializer serializer = new CollapsedMessageSerializer();
+  private final CollapsedMessageSerializer serializer;
 
   /** Deserializer for the model, provided at construction time. */
   private final ModelDeserializer<ReadIntermediate, Model> deserializer;
 
-  private CollapsedMessageCodec(@Nonnull Model instance,
+  private CollapsedMessageCodec(@Nonnull String project,
+                                @Nonnull Model instance,
                                 @Nonnull ModelDeserializer<ReadIntermediate, Model> deserializer) {
     this.instance = instance;
     this.builder = instance.newBuilderForType();
     this.deserializer = deserializer;
+    this.serializer = new CollapsedMessageSerializer(project);
   }
 
   /**
@@ -56,12 +58,15 @@ public final class CollapsedMessageCodec<Model extends Message, ReadIntermediate
    * "collapsed" messages follow the framework-defined protocol for serializing hierarchical data.
    *
    * @param <M> Model type for which we will construct or otherwise resolve a collapsed message codec.
+   * @param project Project ID to use for reference prefixing.
+   * @param instance Model instance to create the codec for.
+   * @param deserializer Deserializer to use with this codec.
    * @return Collapsed message codec bound to the provided message type.
    */
   @Context
   public static @Nonnull <M extends Message, RI> CollapsedMessageCodec<M, RI> forModel(
-      M instance, ModelDeserializer<RI, M> deserializer) {
-    return new CollapsedMessageCodec<>(instance, deserializer);
+      String project, M instance, ModelDeserializer<RI, M> deserializer) {
+    return new CollapsedMessageCodec<>(project, instance, deserializer);
   }
 
   /**
@@ -92,6 +97,13 @@ public final class CollapsedMessageCodec<Model extends Message, ReadIntermediate
 
   /** Serializes model instances into {@link CollapsedMessage} objects. */
   private final class CollapsedMessageSerializer implements ModelSerializer<Model, CollapsedMessage> {
+    /** Project prefix to use for references. */
+    @Nonnull final String project;
+
+    public CollapsedMessageSerializer(@Nonnull String project) {
+      this.project = project;
+    }
+
     /**
      * Serialize a model instance from the provided object type to the specified output type, throwing exceptions
      * verbosely if we are unable to correctly and properly export the record.
@@ -103,7 +115,7 @@ public final class CollapsedMessageCodec<Model extends Message, ReadIntermediate
     @Override
     public @Nonnull CollapsedMessage deflate(@Nonnull Message input) throws ModelDeflateException {
       return ObjectModelSerializer.Companion
-          .defaultInstance()
+          .defaultInstance("projects/" + this.project + "/databases/(default)/documents/")
           .collapse(input, null, null, WriteDisposition.BLIND);
     }
   }
