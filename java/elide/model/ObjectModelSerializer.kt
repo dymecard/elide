@@ -207,6 +207,11 @@ class ObjectModelSerializer<Model : Message>
         } else {
           null
         }
+        val collection = if (fproto.hasOptions() && fproto.options.hasExtension(Datamodel.collection)) {
+          fproto.options.getExtension(Datamodel.collection)
+        } else {
+          null
+        }
 
         // based on the opt-in type, do translation to/from a special Firestore value, or fallback.
         val decoded = data as? String
@@ -214,7 +219,12 @@ class ObjectModelSerializer<Model : Message>
           null
         } else when (opts?.type) {
           // if this is explicitly a reference field, set it that way.
-          tools.elide.core.FieldType.REFERENCE -> value.setReferenceValue(decoded)
+          tools.elide.core.FieldType.REFERENCE -> if (collection?.path?.isNotBlank() == true) {
+            // if the reference declares an explicit collection path, use it.
+            value.setReferenceValue(referenceValue(collection.path, decoded))
+          } else {
+            value.setReferenceValue(decoded)
+          }
 
           // otherwise, just treat it as a normal string.
           else -> value.setStringValue(decoded)
