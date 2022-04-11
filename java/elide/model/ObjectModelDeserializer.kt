@@ -12,8 +12,6 @@
  */
 package elide.model
 
-import tools.elide.core.Datamodel
-import tools.elide.core.FieldType as CoreFieldType
 import com.google.cloud.firestore.DocumentReference
 import com.google.protobuf.ByteString
 import com.google.protobuf.Descriptors
@@ -22,9 +20,13 @@ import com.google.protobuf.Message
 import com.google.protobuf.Timestamp
 import elide.model.ModelDeserializer.DeserializationError
 import elide.runtime.jvm.Logging
+import tools.elide.core.Datamodel
+import tools.elide.core.FieldPersistenceOptions
 import java.nio.charset.StandardCharsets
 import java.util.*
+import java.util.function.Function
 import javax.annotation.Nonnull
+import tools.elide.core.FieldType as CoreFieldType
 
 
 /**
@@ -35,7 +37,10 @@ import javax.annotation.Nonnull
  */
 open class ObjectModelDeserializer<Model: Message> protected constructor(
   /** Default model instance to spawn builders from. */
-  private val defaultInstance: Model): ModelDeserializer<Map<String, *>, Model> {
+  private val defaultInstance: Model,
+
+  /** Prefix to use when de-serializing database references. */
+  private val referencePrefix: String): ModelDeserializer<Map<String, *>, Model> {
   companion object {
     /** Private logging pipe. */
     private val logging = Logging.logger(ObjectModelDeserializer::class.java)
@@ -45,12 +50,14 @@ open class ObjectModelDeserializer<Model: Message> protected constructor(
      * deserialization settings.
      *
      * @param <M> Model type to acquire an object model serializer for.
+     * @param instance Default instance to generate the de-serializer from.
+     * @param referencePrefix Prefix to apply to all de-serialized database references.
      * @return Deserializer, customized to the specified type.
      */
     @JvmStatic
     @Suppress("MemberVisibilityCanBePrivate")
-    fun <M: Message> withSettings(instance: M): ObjectModelDeserializer<M> {
-      return ObjectModelDeserializer(instance)
+    fun <M: Message> withSettings(instance: M, referencePrefix: String = ""): ObjectModelDeserializer<M> {
+      return ObjectModelDeserializer(instance, referencePrefix)
     }
 
     /**
@@ -58,11 +65,13 @@ open class ObjectModelDeserializer<Model: Message> protected constructor(
      * selections for deserialization settings.
      *
      * @param <M> Model type to acquire an object model deserializer for.
+     * @param instance Default instance to generate the de-serializer from.
+     * @param referencePrefix Prefix to apply to all de-serialized database references.
      * @return Deserializer, customized to the specified type.
      */
     @JvmStatic
-    fun <M: Message> defaultInstance(instance: M): ObjectModelDeserializer<M> {
-      return withSettings(instance)
+    fun <M: Message> defaultInstance(instance: M, referencePrefix: String = ""): ObjectModelDeserializer<M> {
+      return withSettings(instance, referencePrefix)
     }
   }
 
@@ -103,48 +112,50 @@ open class ObjectModelDeserializer<Model: Message> protected constructor(
 
     // only operate on fields with a value
     when (type) {
+      // for many types, we can just splice directly
       Type.BOOL,
       Type.INT32, Type.INT64,
       Type.SFIXED32, Type.SFIXED64,
       Type.SINT32, Type.SINT64,
-      Type.FIXED64, Type.FIXED32,
-      Type.STRING ->
-        // serialize a simple native type
+      Type.FIXED64, Type.FIXED32 ->
         builder.setField(field, dataValue)
 
-      Type.DOUBLE, Type.FLOAT -> {
-        // serialize a precision number type
-        when (dataValue) {
-          is Int -> builder.setField(field, dataValue.toFloat())
-          is Long -> builder.setField(field, dataValue.toFloat())
-          is String -> builder.setField(field, dataValue.toFloat())
-          is Double -> builder.setField(field, dataValue.toFloat())
-          else -> {
-            logging.warn("Unable to serialize number precise numeric field: '${field.name}'.")
-            builder.setField(field, dataValue)
-          }
+      // strings may need to deal with special types
+      Type.STRING -> when (dataValue) {
+        is DocumentReference -> builder.setField(field, "$referencePrefix${dataValue.path}")
+        is String -> builder.setField(field, dataValue)
+        else -> throw IllegalArgumentException(
+            "Unrecognized `string` data value: '$dataValue' for field '${field.fullName}'")
+      }
+
+      // serialize a precision number type
+      Type.DOUBLE, Type.FLOAT -> when (dataValue) {
+        is Int -> builder.setField(field, dataValue.toFloat())
+        is Long -> builder.setField(field, dataValue.toFloat())
+        is String -> builder.setField(field, dataValue.toFloat())
+        is Double -> builder.setField(field, dataValue.toFloat())
+        else -> {
+          logging.warn("Unable to serialize number precise numeric field: '${field.name}'.")
+          builder.setField(field, dataValue)
         }
       }
 
-      Type.UINT32, Type.UINT64 ->
-        // serialize with care taken for longs
-        when (dataValue) {
-          is Long -> builder.setField(field, dataValue.toInt())
-          is Double -> builder.setField(field, dataValue.toInt())
-          is Float -> builder.setField(field, dataValue.toInt())
-          else -> builder.setField(field, dataValue)
-        }
+      // serialize with care taken for longs
+      Type.UINT32, Type.UINT64 -> when (dataValue) {
+        is Long -> builder.setField(field, dataValue.toInt())
+        is Double -> builder.setField(field, dataValue.toInt())
+        is Float -> builder.setField(field, dataValue.toInt())
+        else -> builder.setField(field, dataValue)
+      }
 
-      Type.BYTES -> {
-        // decode from base64 if it's not already raw
-        if (dataValue is String) {
-          // it's probably base64 encoded
-          val bytes: ByteArray = Base64.getDecoder().decode(dataValue.toByteArray(StandardCharsets.UTF_8))
-          val bytestring: ByteString = ByteString.copyFrom(bytes)
-          builder.setField(field, bytestring)
-        } else {
-          builder.setField(field, dataValue)
-        }
+      // decode from base64 if it's not already raw
+      Type.BYTES -> if (dataValue is String) {
+        // it's probably base64 encoded
+        val bytes: ByteArray = Base64.getDecoder().decode(dataValue.toByteArray(StandardCharsets.UTF_8))
+        val bytestring: ByteString = ByteString.copyFrom(bytes)
+        builder.setField(field, bytestring)
+      } else {
+        builder.setField(field, dataValue)
       }
 
       Type.ENUM -> {
@@ -206,7 +217,7 @@ open class ObjectModelDeserializer<Model: Message> protected constructor(
 
           when (rawEnumValue) {
             // handle as the enum name if it's a string
-            is String -> enumValues.add(enumType.findValueByName(rawEnumValue.toUpperCase()))
+            is String -> enumValues.add(enumType.findValueByName(rawEnumValue.uppercase()))
 
             // handle as a numeric ID of the enum value
             is Int, is Double, is Long -> enumValues.add(enumType.findValueByNumber(rawEnumValue as Int))
@@ -228,7 +239,7 @@ open class ObjectModelDeserializer<Model: Message> protected constructor(
               "'${field.name}' on entity '${descriptor.name}'.")
 
           // string value should be the enum type
-          enumValues.add(enumType.findValueByName(rawEnumKey.toUpperCase()))
+          enumValues.add(enumType.findValueByName(rawEnumKey.uppercase()))
         }
       }
 
@@ -270,6 +281,196 @@ open class ObjectModelDeserializer<Model: Message> protected constructor(
       targetValues.add(item)
     }
     builder.setField(field, targetValues)
+  }
+
+  /**
+   * Translate the provided database [ref] into a recursively-constructed key structure matching the provided
+   * [defaultInstance]. If the specified instance has a parent, it is recursively decoded into the resulting instance
+   * [K].
+   *
+   * @param K Concrete key type we are inflating.
+   * @param ref Reference to turn into a key.
+   * @param defaultInstance Default instance of the key we are inflating.
+   * @return Constructed key builder.
+   */
+  @Suppress("UNCHECKED_CAST")
+  private fun <K: Message> refToKey(ref: DocumentReference, defaultInstance: K): K {
+    // references look like this:
+    // `projects/<project-id>/databases/(default)/documents/*[collection/doc]`
+    //
+    // so, for example:
+    // `projects/<project-id>/databases/(default)/documents/users/abc123`
+    //
+    // and, with a parent:
+    // `projects/<project-id>/databases/(default)/documents/users/abc123/things/abc123`
+    //
+    val path = ref.path
+    val segments = path.split("/")
+    var i = 0
+    val segmentPairs: ArrayList<Pair<String, String>> = ArrayList()
+    if ((segments.size - 5) % 2 > 0) throw DeserializationError(
+        "Invalid segment count in path reference: '$path'"
+    )
+
+    keySegments@while (i < segments.size) {
+      when (segments[i]) {
+        // skip the next segment, it's the project name.
+        "projects" -> {
+          i += 2
+          continue@keySegments
+        }
+
+        // skip the next segment, it's the database name.
+        "databases" -> {
+          i += 2
+          continue@keySegments
+        }
+
+        // it's the last segment of the database qualifier, so begin handling on the next step.
+        "documents" -> {
+          i += 1
+          continue@keySegments
+        }
+
+        else -> {
+          // quick sanity check
+          if (i < 5 && path.startsWith("projects/")) throw DeserializationError(
+              "Failed to deserialize unqualified reference '$path'"
+          )
+
+          // add the next pair
+          segmentPairs.add(
+            segments[i] to segments[i + 1]
+          )
+          i += 2  // advance to the next pair
+        }
+      }
+    }
+
+    // resolve the base key builder
+    val parentStack: ArrayList<Message.Builder> = ArrayList(segmentPairs.size)
+    val leafDescriptor = defaultInstance.descriptorForType
+    var baseDescriptor = leafDescriptor
+    var contextBuilder = defaultInstance.newBuilderForType()
+    val segmentCount = segmentPairs.size
+    var stackI = 1
+
+    // process each non-leaf to create a key
+    while ((segmentCount - (1 + stackI)) > -1) {
+      val pair = segmentPairs[segmentCount - (1 + stackI)]
+
+      // look for a parent field on the base.
+      val parentField = ModelMetadata.annotatedField(
+          baseDescriptor,
+          Datamodel.field,
+          false,
+          Optional.of(Function { field: FieldPersistenceOptions -> field.type == tools.elide.core.FieldType.PARENT })
+      )
+
+      // if we don't find a parent, it's an error
+      if (!parentField.isPresent) throw DeserializationError(
+        "Failed to locate expected parent for key segment '${pair.first}/${pair.second}' for key path '$path'"
+      )
+
+      val currentParent = parentField.get()
+      val subBuilder = contextBuilder.newBuilderForField(parentField.get().field)
+      contextBuilder = subBuilder
+      parentStack.add(subBuilder)
+      baseDescriptor = currentParent.field.messageType
+      stackI += 1
+    }
+
+    // begin building the key, starting at the root
+    var pairI = 0
+    var builderI = parentStack.size - 1
+    var baseBuilder: Message.Builder = parentStack[builderI]
+    var baseParent: Message? = null
+
+    while (pairI < (segmentPairs.size - 1)) {
+      // pull the segment pair and corresponding field
+      val (collection, documentId) = segmentPairs[pairI]
+
+      // resolve the ID field on the base, splice it in
+      val idField = ModelMetadata.annotatedField(
+            baseDescriptor,
+            Datamodel.field,
+            false,
+            Optional.of(Function { field: FieldPersistenceOptions -> field.type == tools.elide.core.FieldType.ID })
+      )
+      if (idField.isEmpty) throw DeserializationError(
+        "Failed to locate expected ID field for key segment '$collection/$documentId' for key path '$path'"
+      )
+
+      // splice it into the builder
+      ModelMetadata.spliceBuilder<Message.Builder, String>(
+          baseBuilder,
+          idField.get(),
+          Optional.of(documentId)
+      )
+
+      if (builderI == 0) {
+        // we're done building
+        pairI += 1
+        baseParent = baseBuilder.build()
+      } else {
+        pairI += 1
+        builderI -= 1
+        val nextBuilder = parentStack[builderI]
+        val nextDescriptor = nextBuilder.descriptorForType
+
+        // resolve the parent field on the next base, splice it in
+        val nextParent = ModelMetadata.annotatedField(
+            nextDescriptor,
+            Datamodel.field,
+            false,
+            Optional.of(Function { field: FieldPersistenceOptions -> field.type == tools.elide.core.FieldType.PARENT })
+        )
+        if (nextParent.isEmpty) throw DeserializationError(
+          "Failed to locate expected parent field for key segment '$collection/$documentId' for key path '$path'"
+        )
+
+        // on the next builder, make sure to add the `PARENT` first, if applicable, before proceeding to build-in the ID
+        // of the next key.
+        ModelMetadata.spliceBuilder<Message.Builder, Message>(
+            nextBuilder,
+            nextParent.get(),
+            Optional.of(baseBuilder.build())
+        )
+        baseDescriptor = nextDescriptor
+        baseBuilder = nextBuilder
+      }
+    }
+
+    // it's time to start building the final concrete key
+    val leafBuilder = defaultInstance.newBuilderForType()
+    val (_, leafId) = segmentPairs.last()
+
+    // locate the ID field and splice it in
+    ModelMetadata.spliceIdBuilder<Message.Builder, String>(
+        leafBuilder,
+        Optional.of(leafId)
+    )
+
+    // locate the leaf parent field
+    if (baseParent != null) {
+      val leafParent = ModelMetadata.annotatedField(
+          leafDescriptor,
+          Datamodel.field,
+          false,
+          Optional.of(Function { field: FieldPersistenceOptions -> field.type == tools.elide.core.FieldType.PARENT })
+      )
+      if (leafParent.isEmpty) throw DeserializationError(
+          "Failed to locate expected leaf parent field for path '$path'"
+      )
+      ModelMetadata.spliceBuilder<Message.Builder, Message>(
+          leafBuilder,
+          leafParent.get(),
+          Optional.of(baseParent)
+      )
+    }
+
+    // return the built key
+    return leafBuilder.build() as K
   }
 
   /**
@@ -359,7 +560,7 @@ open class ObjectModelDeserializer<Model: Message> protected constructor(
                     if (ref.parent.parent == null) {
                       // has no parent, so it's easy. set up a new instance of the key.
                       val keyInstance = builder.newBuilderForField(field) ?:
-                      throw DeserializationError("Unable to resolve builder for key reference instance.")
+                        throw DeserializationError("Unable to resolve builder for key reference instance.")
 
                       // find the field to inflate the ID into
                       var idField: Descriptors.FieldDescriptor? = null
@@ -381,7 +582,8 @@ open class ObjectModelDeserializer<Model: Message> protected constructor(
                       builder.setField(field, keyInstance.build())
 
                     } else {
-                      TODO("recursive inflation of references not yet supported")
+                      val key = refToKey(ref, builder.newBuilderForField(field).defaultInstanceForType)
+                      builder.setField(field, key)
                     }
                   } else {
                     // dunno why it's not an object
@@ -399,7 +601,7 @@ open class ObjectModelDeserializer<Model: Message> protected constructor(
           // one-of name (concrete synthesized name) and the property name match here, it's supposed to be a concrete
           // type, flattened into the map we're currently de-serializing.
           val concreteType = data[ObjectModelSerializer.concreteTypeProperty] as? String
-          if (concreteType != null && concreteType.toLowerCase().trim() == field.jsonName.toLowerCase().trim()) {
+          if (concreteType != null && concreteType.lowercase().trim() == field.jsonName.lowercase().trim()) {
             // we found the concrete type expressed by this generic entity. now we need to decode it as if it's the
             // underlying concrete type specified.
             val subBuilder = builder.newBuilderForField(field)

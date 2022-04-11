@@ -43,7 +43,9 @@ class ObjectModelCodec<Model: Message> private constructor (
   val builder: Message.Builder = instance.newBuilderForType()
 
   /** Serializer to use.  */
-  private val serializer: ObjectModelSerializer<Model> = ObjectModelSerializer.defaultInstance()
+  private val serializer: ObjectModelSerializer<Model> = ObjectModelSerializer.defaultInstance(
+      referencePrefix
+  )
 
   /** De-serializer to use.  */
   private val deserializer: ObjectModelDeserializer<Model> = ObjectModelDeserializer.defaultInstance(instance)

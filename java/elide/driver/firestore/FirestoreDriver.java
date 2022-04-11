@@ -68,7 +68,6 @@ import static elide.model.ModelMetadata.id;
  * <p><b>Caching</b> may be facilitated by any compliant cache driver, via the main Firestore adapter.</p>
  *
  * @see FirestoreAdapter main adapter interface for Firestore.
- * @see FirestoreManager logic and connection manager for Firestore.
  * @see FirestoreTransportConfig configuration class for Firestore access.
  */
 @Immutable
@@ -101,19 +100,27 @@ public final class FirestoreDriver<Key extends Message, Model extends Message>
      *
      * @param instance Model instance to deserialize.
      */
-    private DocumentSnapshotDeserializer(@Nonnull M instance) {
-      this.objectDeserializer = ObjectModelDeserializer.defaultInstance(instance);
+    private DocumentSnapshotDeserializer(@Nonnull M instance, Firestore engine) {
+      var options = engine.getOptions();
+      this.objectDeserializer = ObjectModelDeserializer.defaultInstance(
+            instance,
+            (
+                "projects/" + options.getProjectId() + "/" +
+                "databases/" + options.getDatabaseId() + "/documents/"
+            )
+      );
     }
 
     /**
      * Construct a {@link DocumentSnapshot} deserializer for the provided <b>instance</b>.
      *
      * @param instance Model instance to acquire a snapshot deserializer for.
+     * @param engine Firestore client to use for this model de-serializer.
      * @param <M> Model type to deserialize.
      * @return Snapshot deserializer instance.
      */
-    static <M extends Message> DocumentSnapshotDeserializer<M> forModel(@Nonnull M instance) {
-      return new DocumentSnapshotDeserializer<>(instance);
+    static <M extends Message> DocumentSnapshotDeserializer<M> forModel(@Nonnull M instance, Firestore engine) {
+      return new DocumentSnapshotDeserializer<>(instance, engine);
     }
 
     /** @inheritDoc */
@@ -152,11 +159,8 @@ public final class FirestoreDriver<Key extends Message, Model extends Message>
         credentialsProvider,
         transportOptions,
         executorService,
-        CollapsedMessageCodec.forModel(
-              baseOptions.build().getProjectId(),  // @TODO(sgammon) avoid building
-              instance,
-              DocumentSnapshotDeserializer.forModel(instance)
-        ));
+        instance
+      );
     }
   }
 
@@ -168,15 +172,14 @@ public final class FirestoreDriver<Key extends Message, Model extends Message>
    * @param credentialsProvider Transport credentials provider.
    * @param transportOptions Options to apply to the transport layer.
    * @param executorService Executor service to use when executing calls.
-   * @param codec Model codec to use with this driver.
+   * @param instance Model instance to build this driver for.
    */
   private FirestoreDriver(@Nonnull FirestoreOptions.Builder baseOptions,
                           @Nonnull TransportChannelProvider channelProvider,
                           @Nonnull CredentialsProvider credentialsProvider,
                           @Nonnull GrpcTransportOptions transportOptions,
                           @Nonnull ListeningScheduledExecutorService executorService,
-                          @Nonnull ModelCodec<Model, CollapsedMessage, DocumentSnapshot> codec) {
-    this.codec = codec;
+                          @Nonnull Model instance) {
     this.executorService = executorService;
     FirestoreOptions firestoreOptions = baseOptions
       .setChannelProvider(channelProvider)
@@ -187,6 +190,11 @@ public final class FirestoreDriver<Key extends Message, Model extends Message>
     if (logging.isDebugEnabled())
       logging.debug(String.format("Initializing Firestore driver with options:\n%s", firestoreOptions));
     this.engine = firestoreOptions.getService();
+    this.codec = CollapsedMessageCodec.forModel(
+        baseOptions.build().getProjectId(),  // @TODO(sgammon) avoid building
+        instance,
+        DocumentSnapshotDeserializer.forModel(instance, this.engine)
+    );
   }
 
   /**
