@@ -382,6 +382,47 @@ java_library(
 )
 
 java_library(
+    name = "QueryableAdapter",
+    srcs = ["QueryableAdapter.java"],
+    deps = [
+        ":QueryableBase",
+        ":QueryableDriver",
+        ":QueryOptions",
+        ":DatabaseAdapter",
+        ":PersistenceException",
+    ] + _COMMON_DEPS,
+)
+
+java_library(
+    name = "QueryableBase",
+    srcs = ["QueryableBase.java"],
+    deps = [
+        ":QueryOptions",
+        ":PersistenceException",
+        "//java/elide/runtime/jvm:reactive",
+    ] + _COMMON_DEPS,
+)
+
+java_library(
+    name = "QueryableDriver",
+    srcs = ["QueryableDriver.java"],
+    deps = [
+        ":DatabaseDriver",
+        ":QueryableBase",
+        ":QueryOptions",
+        ":PersistenceException",
+    ] + _COMMON_DEPS,
+)
+
+java_library(
+    name = "QueryOptions",
+    srcs = ["QueryOptions.java"],
+    deps = [
+        ":FetchOptions",
+    ] + _COMMON_DEPS,
+)
+
+java_library(
     name = "SerializedModel",
     srcs = ["SerializedModel.java"],
     deps = [

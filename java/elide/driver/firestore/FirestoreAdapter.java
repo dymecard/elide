@@ -14,8 +14,7 @@ package elide.driver.firestore;
 
 import com.google.api.gax.core.CredentialsProvider;
 import com.google.api.gax.rpc.TransportChannelProvider;
-import com.google.cloud.firestore.DocumentSnapshot;
-import com.google.cloud.firestore.FirestoreOptions;
+import com.google.cloud.firestore.*;
 import com.google.cloud.firestore.v1.stub.FirestoreStubSettings;
 import com.google.cloud.grpc.GrpcTransportOptions;
 import com.google.common.util.concurrent.ListeningScheduledExecutorService;
@@ -55,9 +54,9 @@ import java.util.Optional;
  */
 @Immutable
 @ThreadSafe
-@SuppressWarnings({"WeakerAccess", "unused", "UnstableApiUsage"})
+@SuppressWarnings({"WeakerAccess", "unused"})
 public final class FirestoreAdapter<Key extends Message, Model extends Message>
-  implements DatabaseAdapter<Key, Model, DocumentSnapshot, CollapsedMessage> {
+  implements QueryableAdapter<Key, Model, DocumentSnapshot, CollapsedMessage, Query> {
   /** Private log pipe. */
   private static final Logger logging = Logging.logger(FirestoreAdapter.class);
 
@@ -264,7 +263,7 @@ public final class FirestoreAdapter<Key extends Message, Model extends Message>
 
   /** {@inheritDoc} */
   @Override
-  public @Nonnull DatabaseDriver<Key, Model, DocumentSnapshot, CollapsedMessage> engine() {
+  public @Nonnull QueryableDriver<Key, Model, DocumentSnapshot, CollapsedMessage, Query> engine() {
     return this.driver;
   }
 
@@ -272,5 +271,26 @@ public final class FirestoreAdapter<Key extends Message, Model extends Message>
   @Override
   public @Nonnull ListeningScheduledExecutorService executorService() {
     return driver.executorService();
+  }
+
+  // -- API: Querying -- //
+  /**
+   * Return a reference to the Firestore collection at the provided name.
+   *
+   * @param name Name of the collection reference to build.
+   * @return Collection reference under the specified name.
+   */
+  public @Nonnull CollectionReference collection(@Nonnull String name) {
+    return this.driver.collection(name);
+  }
+
+  /**
+   * Return a reference to the Firestore collection group at the provided name.
+   *
+   * @param name Name of the collection reference to build.
+   * @return Collection reference under the specified name.
+   */
+  public @Nonnull CollectionGroup collectionGroup(@Nonnull String name) {
+    return this.driver.collectionGroup(name);
   }
 }

@@ -122,7 +122,7 @@ public interface PersistenceDriver<Key extends Message, Model extends Message> {
      * @return Return value of the async operation.
      */
     @CanIgnoreReturnValue
-    static <R> R convertAsyncExceptions(@Nonnull Callable<R> operation) {
+    public static <R> R convertAsyncExceptions(@Nonnull Callable<R> operation) {
       try {
         return operation.call();
       } catch (InterruptedException ixe) {
@@ -389,8 +389,7 @@ public interface PersistenceDriver<Key extends Message, Model extends Message> {
    * @throws MissingAnnotatedField If the specified key record has no resolvable ID field.
    */
   default @Nullable Model fetch(@Nonnull Key key, @Nullable FetchOptions options) throws PersistenceException {
-    Optional<Model> msg = fetchSafe(key, options);
-    return msg.orElse(null);
+    return fetchSafe(key, options).orElse(null);
   }
 
   /**

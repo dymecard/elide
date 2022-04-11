@@ -18,11 +18,12 @@ import javax.annotation.Nonnull;
 
 
 /**
- * Extends the standard {@link ModelAdapter} interface with rich persistence features, including querying, indexing, and
- * other stuff one would expect when interacting with a full database.
+ * Extends the standard {@link ModelAdapter} interface with rich persistence features.
  *
  * @param <Key> Type of key used to uniquely address models.
  * @param <Model> Message type which this database adapter is handling.
+ * @param <ReadRecord> Intermediate read record.
+ * @param <WriteRecord> Intermediate write record.
  */
 public interface DatabaseAdapter<Key extends Message, Model extends Message, ReadRecord, WriteRecord>
   extends ModelAdapter<Key, Model> {

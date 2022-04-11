@@ -12,6 +12,7 @@
  */
 package elide.driver.firestore;
 
+import com.google.api.core.ApiFutures;
 import com.google.api.gax.core.CredentialsProvider;
 import com.google.api.gax.rpc.TransportChannelProvider;
 import com.google.cloud.Timestamp;
@@ -46,14 +47,11 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
-import static elide.model.ModelMetadata.enforceRole;
-import static elide.model.ModelMetadata.modelAnnotation;
-import static elide.model.ModelMetadata.idField;
-import static elide.model.ModelMetadata.keyField;
-import static elide.model.ModelMetadata.spliceBuilder;
-import static elide.model.ModelMetadata.annotatedField;
-import static elide.model.ModelMetadata.id;
+import static elide.model.ModelMetadata.*;
 
 
 /**
@@ -74,7 +72,7 @@ import static elide.model.ModelMetadata.id;
 @ThreadSafe
 @SuppressWarnings({"UnstableApiUsage", "OptionalUsedAsFieldOrParameterType"})
 public final class FirestoreDriver<Key extends Message, Model extends Message>
-  implements DatabaseDriver<Key, Model, DocumentSnapshot, CollapsedMessage> {
+  implements QueryableDriver<Key, Model, DocumentSnapshot, CollapsedMessage, Query> {
   /** Private log pipe. */
   private static final Logger logging = Logging.logger(FirestoreDriver.class);
 
@@ -217,6 +215,7 @@ public final class FirestoreDriver<Key extends Message, Model extends Message>
   }
 
   // -- Getters -- //
+
   /** {@inheritDoc} */
   @Override
   public @Nonnull ListeningScheduledExecutorService executorService() {
@@ -238,7 +237,7 @@ public final class FirestoreDriver<Key extends Message, Model extends Message>
    */
   private @Nonnull DocumentReference ref(@Nonnull Message keyInstance) {
     if (logging.isDebugEnabled())
-      logging.debug("Creating Firestore ref from key instance '" + keyInstance.toString() + "'.");
+      logging.debug("Creating Firestore ref from key instance '" + keyInstance + "'.");
     enforceRole(keyInstance, DatapointType.OBJECT_KEY);
     var keyDescriptor = keyInstance.getDescriptorForType();
 
@@ -277,7 +276,7 @@ public final class FirestoreDriver<Key extends Message, Model extends Message>
         Optional.of((field) -> field.getType() == FieldType.PARENT));
 
     if (parentField.isPresent()) {
-      var parentInstance = ModelMetadata.pluck(keyInstance, parentField.get());
+      var parentInstance = pluck(keyInstance, parentField.get());
       if (parentInstance.getValue().isPresent()) {
         var parentKey = this.ref((Message)parentInstance.getValue().get());
 
@@ -286,7 +285,7 @@ public final class FirestoreDriver<Key extends Message, Model extends Message>
             .orElseGet(() -> parentKey.collection(resolvedPath).document());
 
         if (logging.isDebugEnabled())
-          logging.debug("Generated document reference with parent: '" + ref.toString() + "'.");
+          logging.debug("Generated document reference with parent: '" + ref + "'.");
         return ref;
       } else {
         // no parent present when one is required: fail
@@ -299,7 +298,7 @@ public final class FirestoreDriver<Key extends Message, Model extends Message>
           .orElseGet(() -> engine.collection(resolvedPath).document());
 
       if (logging.isDebugEnabled())
-        logging.debug("Generated document reference with no parent: '" + ref.toString() + "'.");
+        logging.debug("Generated document reference with no parent: '" + ref + "'.");
       return ref;
     }
   }
@@ -320,6 +319,7 @@ public final class FirestoreDriver<Key extends Message, Model extends Message>
   }
 
   // -- API: Key Generation -- //
+
   /** {@inheritDoc} */
   @Override
   public @Nonnull Key generateKey(@Nonnull Message instance) {
@@ -348,7 +348,7 @@ public final class FirestoreDriver<Key extends Message, Model extends Message>
     ProtocolStringList paths = originalMask.getPathsList();
     if (!paths.isEmpty()) {
       if (logging.isDebugEnabled())
-        logging.debug("Applying field mask for Firestore operation: \n" + originalMask.toString());
+        logging.debug("Applying field mask for Firestore operation: \n" + originalMask);
 
       ArrayList<String> pathsList = new ArrayList<>(paths.size());
       var count = originalMask.getPathsCount();
@@ -388,6 +388,7 @@ public final class FirestoreDriver<Key extends Message, Model extends Message>
   }
 
   // -- API: Fetch -- //
+
   /** {@inheritDoc} */
   @Override
   public @Nonnull ReactiveFuture<Optional<Model>> retrieve(@Nonnull Key key, @Nonnull FetchOptions opts) {
@@ -448,15 +449,16 @@ public final class FirestoreDriver<Key extends Message, Model extends Message>
   }
 
   // -- API: Persist -- //
+
   /** {@inheritDoc} */
   @Override
-  public @Nonnull ReactiveFuture<Model> persist(@Nonnull Key key,
+  public @Nonnull ReactiveFuture<Model> persist(@Nullable Key key,
                                                 @Nonnull Model model,
                                                 @Nonnull WriteOptions options) {
-    Objects.requireNonNull(key, "Cannot write model with `null` for key.");
     Objects.requireNonNull(model, "Cannot write model which is, itself, `null`.");
     Objects.requireNonNull(options, "Cannot write model without `options`.");
-    enforceRole(key, DatapointType.OBJECT_KEY);
+    var resolvedKey = key != null ? key : generateKey(model);
+    enforceRole(resolvedKey, DatapointType.OBJECT_KEY);
     ExecutorService exec = options.executorService().orElseGet(this::executorService);
 
     try {
@@ -498,6 +500,7 @@ public final class FirestoreDriver<Key extends Message, Model extends Message>
   }
 
   // -- API: Delete -- //
+
   /** {@inheritDoc} */
   @Override
   public @Nonnull ReactiveFuture<Key> delete(@Nonnull Key key, @Nonnull DeleteOptions options) {
@@ -514,5 +517,183 @@ public final class FirestoreDriver<Key extends Message, Model extends Message>
       .setExecutor(exec)
       .setNumberOfAttempts(options.retries().orElse(2))
       .build()));
+  }
+
+  // -- API: Query -- //
+
+  /**
+   * Return a reference to the Firestore collection at the provided name.
+   *
+   * @param name Name of the collection reference to build.
+   * @return Collection reference under the specified name.
+   */
+  public @Nonnull CollectionReference collection(@Nonnull String name) {
+    return engine.collection(name);
+  }
+
+  /**
+   * Return a reference to the Firestore collection group at the provided name.
+   *
+   * @param name Name of the collection reference to build.
+   * @return Collection reference under the specified name.
+   */
+  public @Nonnull CollectionGroup collectionGroup(@Nonnull String name) {
+    return engine.collectionGroup(name);
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public @Nonnull ReactiveFuture<Stream<Key>> queryKeysAsync(@Nonnull Query query, @Nullable QueryOptions options) {
+    Objects.requireNonNull(query, "Cannot execute `null` query.");
+    var opts = options != null ? options : QueryOptions.DEFAULTS;
+    ExecutorService exec = opts.executorService().orElseGet(this::executorService);
+    var baseOptions = TransactionOptions.createReadOnlyOptionsBuilder()
+          .setExecutor(exec);
+
+    // apply read-time snapshot, if specified
+    if (opts.snapshot().isPresent()) {
+      var snap = opts.snapshot().get();
+      baseOptions.setReadTime(com.google.protobuf.Timestamp.newBuilder()
+              .setSeconds(snap)
+              .build());
+    }
+
+    // we're running in keys only mode. so select the key field.
+    var targetDescriptor = codec.instance().getDescriptorForType();
+    var keyFieldGet = keyField(targetDescriptor);
+    if (keyFieldGet.isEmpty()) {
+      logging.error("Failed to resolve key field for model '" + targetDescriptor.getFullName() + "'");
+      throw new IllegalArgumentException("Cannot query model keys for schema with no key record.");
+    }
+
+    // build the path to the key field
+    var keyField = keyFieldGet.get();
+    var keyBuilder = codec.instance().newBuilderForType().getFieldBuilder(keyField.getField());
+    var idField = idField(keyFieldGet.get().getField().getMessageType());
+    if (idField.isEmpty()) {
+      logging.error("Failed to resolve key field for model '" + targetDescriptor.getFullName() + "'");
+      throw new IllegalArgumentException("Cannot query model keys for schema with no key record.");
+    }
+
+    //noinspection unchecked
+    var keyInstance = (Key)keyBuilder.getDefaultInstanceForType();
+
+    // grab ID field path so we can select it
+    var idFieldPath = idField.get().getPath();
+    var baseQuery = query.select(idFieldPath);
+
+    // check for a parent property, so that we make sure we return fully-formed keys.
+    var parentFieldGet = annotatedField(
+          targetDescriptor,
+          Datamodel.field,
+          false,
+          Optional.of((field) -> field.getType() == FieldType.PARENT)
+    );
+    if (parentFieldGet.isPresent()) {
+      baseQuery = baseQuery.select(parentFieldGet.get().getPath());
+    }
+
+    final var finalized = baseQuery;
+    return ReactiveFuture.wrap(engine.runAsyncTransaction(transaction ->
+      ApiFutures.transformAsync(transaction.get(finalized), querySnapshot -> {
+        // consume the query, and convert it into a set of keys.
+        if (querySnapshot.isEmpty()) {
+          return ApiFutures.immediateFuture(Stream.empty());
+        } else {
+          var iterator = querySnapshot.iterator();
+          var keyDeserializer = (
+              DocumentSnapshotDeserializer.forModel(keyInstance, this.engine)
+          );
+
+          Supplier<Key> deserializeKey = () -> {
+            // get next snapshot
+            return keyDeserializer.inflate(iterator.next());
+          };
+          var str = Stream.iterate(
+              keyInstance,
+              (instance) -> iterator.hasNext(),
+              (instance) -> deserializeKey.get()
+          );
+
+          return ApiFutures.immediateFuture(str);
+        }
+    }, exec), baseOptions.build()));
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public @Nonnull ReactiveFuture<Stream<Model>> queryAsync(@Nonnull Query query, @Nullable QueryOptions options) {
+    Objects.requireNonNull(query, "Cannot execute `null` query.");
+    var opts = options != null ? options : QueryOptions.DEFAULTS;
+    var mask = opts.fieldMask();
+    var maskMode = opts.fieldMaskMode();
+    ExecutorService exec = opts.executorService().orElseGet(this::executorService);
+    var baseOptions = TransactionOptions.createReadOnlyOptionsBuilder()
+            .setExecutor(exec);
+
+    // build in support for object mask
+    var baseQuery = query;
+    if (mask.isPresent()) {
+      switch (maskMode) {
+        case PROJECTION:
+        case INCLUDE:
+          var paths = mask.get().getPathsList();
+          String[] pathsList = new String[paths.size()];
+          paths.toArray(pathsList);
+          baseQuery = baseQuery.select(pathsList);
+          break;
+        case EXCLUDE:
+          // in `EXCLUDE` mode, we enforce post-hoc.
+          break;
+      }
+    }
+
+    // apply read-time snapshot, if specified
+    if (opts.snapshot().isPresent()) {
+      var snap = opts.snapshot().get();
+      baseOptions.setReadTime(com.google.protobuf.Timestamp.newBuilder()
+              .setSeconds(snap)
+              .build());
+    }
+
+    // we're running in keys only mode. so select the key field.
+    final var finalized = baseQuery;
+    return ReactiveFuture.wrap(engine.runAsyncTransaction(transaction ->
+      ApiFutures.transform(transaction.get(finalized), querySnapshot -> {
+        // consume the query, and convert it into a set of keys.
+        if (querySnapshot.isEmpty()) {
+          return Stream.empty();
+        } else {
+          var iterator = querySnapshot.iterator();
+          return StreamSupport.stream(
+              Spliterators.spliteratorUnknownSize(iterator, Spliterator.ORDERED),
+              false
+          ).map(this::deserialize);
+        }
+      }, exec), baseOptions.build()));
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public @Nonnull Stream<Model> query(@Nonnull Query query, @Nullable QueryOptions options)
+          throws PersistenceException {
+    return Internals.convertAsyncExceptions(() ->
+        this.queryAsync(query, options).get(
+          DEFAULT_TIMEOUT,
+          DEFAULT_TIMEOUT_UNIT
+        )
+    );
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public @Nonnull Stream<Key> queryKeys(@Nonnull Query query, @Nullable QueryOptions options)
+          throws PersistenceException {
+    return Internals.convertAsyncExceptions(() ->
+        this.queryKeysAsync(query, options).get(
+          DEFAULT_TIMEOUT,
+          DEFAULT_TIMEOUT_UNIT
+        )
+    );
   }
 }

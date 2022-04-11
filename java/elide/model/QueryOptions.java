@@ -12,14 +12,12 @@
  */
 package elide.model;
 
-import com.google.protobuf.Message;
-
 
 /**
- * Extends the standard {@link PersistenceDriver} with intermediate types {@link ReadRecord} and {@link WriteRecord},
- * which all sub-classes are expected to define for type-checking of fetch and write types.
+ * Specifies options related to generic query capabilities expressed via Elide's built-in model layer; drivers may
+ * override this interface and provide their own concrete options.
  */
-public interface DatabaseDriver<Key extends Message, Model extends Message, ReadRecord, WriteRecord>
-        extends PersistenceDriver<Key, Model> {
-    // No additional methods.
+public interface QueryOptions extends FetchOptions {
+    /** Default set of query options. */
+    QueryOptions DEFAULTS = new QueryOptions() {};
 }
