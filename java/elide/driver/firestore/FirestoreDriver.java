@@ -287,20 +287,17 @@ public final class FirestoreDriver<Key extends Message, Model extends Message>
         if (logging.isDebugEnabled())
           logging.debug("Generated document reference with parent: '" + ref + "'.");
         return ref;
-      } else {
-        // no parent present when one is required: fail
-        throw new IllegalStateException("Cannot persist key with missing parent when one is requred.");
       }
-    } else {
-      // build a document reference with no parent
-      DocumentReference ref = targetId
-          .map(s -> engine.collection(resolvedPath).document(s))
-          .orElseGet(() -> engine.collection(resolvedPath).document());
-
-      if (logging.isDebugEnabled())
-        logging.debug("Generated document reference with no parent: '" + ref + "'.");
-      return ref;
     }
+
+    // build a document reference with no parent
+    DocumentReference ref = targetId
+        .map(s -> engine.collection(resolvedPath).document(s))
+        .orElseGet(() -> engine.collection(resolvedPath).document());
+
+    if (logging.isDebugEnabled())
+      logging.debug("Generated document reference with no parent: '" + ref + "'.");
+    return ref;
   }
 
   /**
