@@ -18,13 +18,17 @@ package(
 load(
     "//tools/defs/micronaut:data.bzl",
     "MICRONAUT_DATA_DEPS",
+    "MICRONAUT_DATA_RUNTIME_DEPS",
     "MICRONAUT_DATA_ENGINES",
     "MICRONAUT_DATA_ENGINE_DEPS",
     "MICRONAUT_DATA_ENGINE_EXPORTS",
     "MICRONAUT_DATA_ENGINE_RUNTIME_DEPS",
+    "MICRONAUT_DATA_HIBERNATE_DEPS",
+    "MICRONAUT_DATA_HIBERNATE_RUNTIME_DEPS",
     "MICRONAUT_DATA_HIKARI_DEPS",
     "MICRONAUT_DATA_HIKARI_RUNTIME_DEPS",
-    "MICRONAUT_DATA_JDBC_DEPS",
+    "MICRONAUT_DATA_JDBC_EXPORTS",
+    "MICRONAUT_DATA_JPA_EXPORTS",
 )
 load(
     "@rules_java//java:defs.bzl",
@@ -38,13 +42,24 @@ load(
 
 java_library(
     name = "jdbc",
-    exports = MICRONAUT_DATA_JDBC_DEPS,
+    exports = MICRONAUT_DATA_JDBC_EXPORTS,
+)
+
+java_library(
+    name = "hibernate",
+    exports = MICRONAUT_DATA_HIBERNATE_DEPS,
+    runtime_deps = MICRONAUT_DATA_HIBERNATE_RUNTIME_DEPS
 )
 
 java_library(
     name = "hikari",
     exports = MICRONAUT_DATA_HIKARI_DEPS,
     runtime_deps = MICRONAUT_DATA_HIKARI_RUNTIME_DEPS
+)
+
+java_library(
+    name = "jpa",
+    exports = MICRONAUT_DATA_JPA_EXPORTS,
 )
 
 [
@@ -59,4 +74,5 @@ java_library(
 java_library(
     name = "data",
     exports = MICRONAUT_DATA_DEPS,
+    runtime_deps = MICRONAUT_DATA_RUNTIME_DEPS,
 )

@@ -115,6 +115,7 @@ def server_binary(
         jvm_image_base = None,
         jvm_flags = JVM_FLAGS,
         jvm_image_layers = [],
+        jvm_image_flags = [],
         jvm_image_repository = None,
         native_image_base = None,
         native_image_repository = None,
@@ -162,7 +163,6 @@ def server_binary(
 
     binargs = {
         "main_class": main_class,
-        "jvm_flags": jvm_flags,
         "runtime_deps": runtime_deps + libdeps,
     }
     binargs.update(kwargs)
@@ -173,11 +173,13 @@ def server_binary(
             name = "%s.jvm" % name,
             srcs = srcs,
             deps = deps,
+            jvm_flags = jvm_flags,
             **binargs
         )
     else:
         _java_binary(
             name = "%s.jvm" % name,
+            jvm_flags = jvm_flags,
             **binargs
         )
 
@@ -210,6 +212,7 @@ def server_binary(
         base = jvm_image_base or "@graalvm_base//image",
         tags = ["no-ide"],
         layers = (jvm_image_layers or []),
+        jvm_flags = jvm_flags + jvm_image_flags,
         **binargs
     )
     _container_push(

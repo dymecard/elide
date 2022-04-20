@@ -85,12 +85,17 @@ def micronaut_library(
     if any([src.endswith(".kt") for src in srcs]):
         rule = _kt_jvm_library
         resolved_plugins = resolved_plugins + MICRONAUT_KT_PLUGINS
+    _kwargs = {
+        "name": name,
+        "runtime_deps": runtime_deps + MICRONAUT_RUNTIME_DEPS,
+        "plugins": resolved_plugins,
+    }
+    if len(srcs) > 0:
+        _kwargs["srcs"] = srcs
+        _kwargs["deps"] = deps + MICRONAUT_DEPS
+
     rule(
-        name = name,
-        srcs = srcs,
-        runtime_deps = runtime_deps + MICRONAUT_RUNTIME_DEPS,
-        deps = deps + MICRONAUT_DEPS,
-        plugins = resolved_plugins,
+        **_kwargs
     )
 
 def micronaut_service(

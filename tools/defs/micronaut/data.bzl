@@ -14,12 +14,8 @@
 """Provides declarations used by Micronaut Data macros."""
 
 load(
-    "@rules_java//java:defs.bzl",
-    _java_library = "java_library",
-)
-load(
-    "//tools/defs/kt:defs.bzl",
-    _kt_jvm_library = "kt_jvm_library",
+    "//tools/defs/micronaut:micronaut.bzl",
+    _micronaut_library = "micronaut_library"
 )
 load(
     "//tools/defs/java:java.bzl",
@@ -27,11 +23,37 @@ load(
 )
 
 MICRONAUT_DATA_DEPS = [
+    _maven("javax.persistence:javax.persistence-api"),
     _maven("io.micronaut.data:micronaut-data-processor"),
+    _maven("io.micronaut.data:micronaut-data-model"),
+    _maven("io.micronaut.data:micronaut-data-document-model"),
+    _maven("io.micronaut.data:micronaut-data-tx"),
 ]
 
-MICRONAUT_DATA_JDBC_DEPS = [
+MICRONAUT_DATA_RUNTIME_DEPS = [
+    _maven("jakarta.persistence:jakarta.persistence-api"),
+    _maven("io.micronaut.data:micronaut-data-runtime"),
+]
+
+MICRONAUT_DATA_JDBC_EXPORTS = [
     _maven("io.micronaut.data:micronaut-data-jdbc"),
+    _maven("javax.validation:validation-api"),
+]
+
+MICRONAUT_DATA_JPA_EXPORTS = [
+    _maven("io.micronaut.data:micronaut-data-hibernate-jpa"),
+]
+
+MICRONAUT_DATA_HIBERNATE_DEPS = [
+    _maven("org.hibernate:hibernate-core"),
+    _maven("org.hibernate:hibernate-hikaricp"),
+    _maven("org.hibernate:hibernate-jcache"),
+    _maven("io.micronaut.data:micronaut-data-tx-hibernate"),
+]
+
+MICRONAUT_DATA_HIBERNATE_RUNTIME_DEPS = [
+    _maven("org.hibernate:hibernate-hikaricp"),
+    _maven("org.hibernate:hibernate-jcache"),
 ]
 
 MICRONAUT_DATA_HIKARI_DEPS = [
@@ -63,3 +85,47 @@ MICRONAUT_DATA_ENGINE_RUNTIME_DEPS = {
         _maven("org.postgresql:postgresql"),
     ],
 }
+
+
+## Re-export for convenience.
+micronaut_library = _micronaut_library
+
+def micronaut_data_library(
+        name,
+        srcs = [],
+        deps = [],
+        runtime_deps = [],
+        plugins = [],
+        exports = [],
+        engine = None,
+        engines = []):
+    """Declare a target with support for Micronaut Data, using the specified engine."""
+    engine_deps = []
+    engine_runtime_deps = []
+    engine_exports = []
+
+    if engine:
+        engine_runtime_deps = MICRONAUT_DATA_ENGINE_RUNTIME_DEPS.get(engine, [])
+        engine_exports = MICRONAUT_DATA_ENGINE_EXPORTS.get(engine, [])
+        if len(srcs) > 0:
+            engine_deps = MICRONAUT_DATA_ENGINE_DEPS.get(engine, [])
+    elif len(engines) > 0:
+        [engine_runtime_deps.extend(i) for i in MICRONAUT_DATA_ENGINE_RUNTIME_DEPS.get(engine, [])]
+        [engine_exports.extend(i) for i in MICRONAUT_DATA_ENGINE_EXPORTS.get(engine, [])]
+        if len(srcs) > 0:
+            [engine_deps.extend(i) for i in MICRONAUT_DATA_ENGINE_DEPS.get(engine, [])]
+
+    _kargs = {
+        "name": name,
+        "runtime_deps": runtime_deps + engine_runtime_deps + MICRONAUT_DATA_RUNTIME_DEPS,
+        "exports": exports + engine_exports,
+        "plugins": plugins,
+    }
+
+    if len(srcs) > 0:
+        _kargs["srcs"] = srcs
+        _kargs["deps"] = deps + MICRONAUT_DATA_DEPS + engine_deps
+
+    _micronaut_library(
+        **_kargs
+    )

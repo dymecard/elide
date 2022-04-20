@@ -41,6 +41,11 @@ MICRONAUT_BASE_DEPS = [
     maven("jakarta.inject:jakarta.inject-api"),
 ]
 
+MICRONAUT_EXTRA_PROCESSORS = [
+    maven("io.micronaut.data:micronaut-data-processor"),
+    maven("io.micronaut.data:micronaut-data-document-processor"),
+]
+
 MICRONAUT_TEST_DEPS = MICRONAUT_BASE_DEPS + [
     maven("io.micronaut.test:micronaut-test-junit5"),
     "@org_junit_jupiter_junit_jupiter_api//jar",
@@ -49,6 +54,10 @@ MICRONAUT_TEST_DEPS = MICRONAUT_BASE_DEPS + [
 
 MICRONAUT_RUNTIME_DEPS = [
     maven("ch.qos.logback:logback-classic"),
+]
+
+MICRONAUT_TEST_RUNTIME_DEPS = MICRONAUT_RUNTIME_DEPS + [
+    "@org_junit_jupiter_junit_jupiter_engine//jar",
     "@org_junit_platform_junit_platform_commons//jar",
     "@org_junit_platform_junit_platform_console//jar",
     "@org_junit_platform_junit_platform_engine//jar",
@@ -56,16 +65,12 @@ MICRONAUT_RUNTIME_DEPS = [
     "@org_junit_platform_junit_platform_suite_api//jar",
 ]
 
-MICRONAUT_TEST_RUNTIME_DEPS = MICRONAUT_RUNTIME_DEPS + [
-    "@org_junit_jupiter_junit_jupiter_engine//jar",
-]
-
 [
     java_plugin(
         name = n.split(".")[-1],
         generates_api = True,
         processor_class = n,
-        deps = MICRONAUT_BASE_DEPS,
+        deps = MICRONAUT_BASE_DEPS + MICRONAUT_EXTRA_PROCESSORS,
     )
     for n in ANNOTATION_PROCESSORS
 ]
@@ -81,5 +86,5 @@ java_library(
     name = "micronaut",
     exported_plugins = [":%s" % n.split(".")[-1] for n in ANNOTATION_PROCESSORS],
     exports = MICRONAUT_BASE_DEPS,
-    runtime_deps = MICRONAUT_RUNTIME_DEPS,
+    runtime_deps = MICRONAUT_RUNTIME_DEPS + MICRONAUT_EXTRA_PROCESSORS,
 )
