@@ -52,6 +52,7 @@ MICRONAUT_EXTRA_GRAALVM_DEPS = [
     maven("io.micronaut:micronaut-jackson-core"),
     maven("io.micronaut:micronaut-jackson-databind"),
     maven("io.micronaut:micronaut-graal"),
+    maven("org.graalvm.nativeimage:svm"),
 ]
 
 MICRONAUT_TEST_DEPS = MICRONAUT_BASE_DEPS + [
@@ -81,6 +82,10 @@ MICRONAUT_TEST_RUNTIME_DEPS = MICRONAUT_RUNTIME_DEPS + [
         deps = MICRONAUT_BASE_DEPS + MICRONAUT_EXTRA_PROCESSOR_DEPS,
     )
     for n in ANNOTATION_PROCESSORS
+]
+
+MICRONAUT_MODULES = [
+    ":graalvm",
 ]
 
 java_library(

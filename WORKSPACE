@@ -617,6 +617,7 @@ maven_install(
         "org.testcontainers:gcloud:1.16.3",
         "org.testcontainers:nginx:1.16.3",
         "org.testcontainers:junit-jupiter:1.16.3",
+        maven.artifact("org.graalvm.nativeimage", "svm", GRAALVM_VERSION, neverlink = True),
     ] + INJECTED_JVM_ARTIFACTS + [
         maven.artifact(
             testonly = True,
