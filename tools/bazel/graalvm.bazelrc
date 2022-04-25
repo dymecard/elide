@@ -12,10 +12,9 @@
 ##
 
 #
-# Elide: Bazel Configuration
+# Bazel: GraalVM Settings
 #
 
-import %workspace%/tools/bazel/base.bazelrc
-import %workspace%/tools/bazel/graalvm.bazelrc
-
-try-import %workspace%/.env.bazel.rc
+build:native --define=ENGINE=native
+build:native --nojava_header_compilation
+build:native --@elide//tools/config:runtime=native

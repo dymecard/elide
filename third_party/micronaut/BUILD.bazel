@@ -74,12 +74,17 @@ MICRONAUT_TEST_RUNTIME_DEPS = MICRONAUT_RUNTIME_DEPS + [
     "@org_junit_platform_junit_platform_suite_api//jar",
 ]
 
+MICRONAUT_NATIVE_PROCESSORS = select({
+    "//tools/config:native": MICRONAUT_EXTRA_GRAALVM_DEPS,
+    "//tools/config:jvm": [],
+})
+
 [
     java_plugin(
         name = n.split(".")[-1],
         generates_api = True,
         processor_class = n,
-        deps = MICRONAUT_BASE_DEPS + MICRONAUT_EXTRA_PROCESSOR_DEPS + MICRONAUT_EXTRA_GRAALVM_DEPS,
+        deps = MICRONAUT_BASE_DEPS + MICRONAUT_EXTRA_PROCESSOR_DEPS + MICRONAUT_NATIVE_PROCESSORS,
     )
     for n in ANNOTATION_PROCESSORS
 ]

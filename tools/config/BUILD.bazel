@@ -14,3 +14,28 @@
 package(
     default_visibility = ["//visibility:public"],
 )
+
+load(
+    "@bazel_skylib//rules:common_settings.bzl",
+    "string_flag",
+)
+
+
+string_flag(
+    name = "runtime",
+    build_setting_default = "jvm",
+)
+
+config_setting(
+    name = "jvm",
+    flag_values = {
+        ":runtime": "jvm",
+    }
+)
+
+config_setting(
+    name = "native",
+    flag_values = {
+        ":runtime": "native",
+    }
+)
