@@ -41,9 +41,17 @@ MICRONAUT_BASE_DEPS = [
     maven("jakarta.inject:jakarta.inject-api"),
 ]
 
-MICRONAUT_EXTRA_PROCESSORS = [
+MICRONAUT_EXTRA_PROCESSOR_DEPS = [
     maven("io.micronaut.data:micronaut-data-processor"),
     maven("io.micronaut.data:micronaut-data-document-processor"),
+]
+
+MICRONAUT_EXTRA_GRAALVM_DEPS = [
+    maven("com.fasterxml.jackson.core:jackson-core"),
+    maven("com.fasterxml.jackson.core:jackson-databind"),
+    maven("io.micronaut:micronaut-jackson-core"),
+    maven("io.micronaut:micronaut-jackson-databind"),
+    maven("io.micronaut:micronaut-graal"),
 ]
 
 MICRONAUT_TEST_DEPS = MICRONAUT_BASE_DEPS + [
@@ -70,7 +78,7 @@ MICRONAUT_TEST_RUNTIME_DEPS = MICRONAUT_RUNTIME_DEPS + [
         name = n.split(".")[-1],
         generates_api = True,
         processor_class = n,
-        deps = MICRONAUT_BASE_DEPS + MICRONAUT_EXTRA_PROCESSORS,
+        deps = MICRONAUT_BASE_DEPS + MICRONAUT_EXTRA_PROCESSOR_DEPS,
     )
     for n in ANNOTATION_PROCESSORS
 ]
@@ -83,8 +91,14 @@ java_library(
 )
 
 java_library(
+    name = "graalvm",
+    exports = MICRONAUT_EXTRA_GRAALVM_DEPS,
+    runtime_deps = MICRONAUT_EXTRA_GRAALVM_DEPS,
+)
+
+java_library(
     name = "micronaut",
     exported_plugins = [":%s" % n.split(".")[-1] for n in ANNOTATION_PROCESSORS],
     exports = MICRONAUT_BASE_DEPS,
-    runtime_deps = MICRONAUT_RUNTIME_DEPS + MICRONAUT_EXTRA_PROCESSORS,
+    runtime_deps = MICRONAUT_RUNTIME_DEPS + MICRONAUT_EXTRA_PROCESSOR_DEPS,
 )

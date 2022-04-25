@@ -84,12 +84,12 @@ KOTLIN_LANGUAGE_LEVEL = "1.6"
 ## Kotlin SDK version.
 ## ------------------------------------
 ## Sets the Kotlin runtime version.
-KOTLIN_SDK_VERSION = "1.6.10"
+KOTLIN_SDK_VERSION = "1.6.21"
 
 ## React version.
 ## ------------------------------------
 ## Sets the version of React to use.
-REACT_VERSION = "17.0.2"
+REACT_VERSION = "18.0.0"
 
 ## Kubernetes toolchain version.
 ## ------------------------------------
@@ -139,7 +139,7 @@ JVM_DEBUG_PORT = "5005"
 ## Golang version to use.
 ## ------------------------------------
 ## Sets the version to use for Google's Go language.
-GO_VERSION = "1.17.6"
+GO_VERSION = "1.18"
 
 ## NodeJS version to use.
 ## ------------------------------------
@@ -169,7 +169,7 @@ GCLOUD_VERSION = "376.0.0"
 ## Micronaut.
 ## ------------------------------------
 ## Server-side framework version.
-MICRONAUT_VERSION = "3.3.4"
+MICRONAUT_VERSION = "3.4.2"
 
 ## iOS Version.
 ## ------------------------------------

@@ -494,6 +494,9 @@ public final class AssetManager {
                                 bundle.getRewrite() ? ", with rewriting ACTIVE" : ", with no style rewriting"));
                     }
                 }
+            } catch (Throwable thr) {
+                // if the bundle can't be loaded, log a message silently; this is a normal case.
+                if (logging.isDebugEnabled()) logging.debug("No asset manifest found.", thr);
             }
         }
     }
