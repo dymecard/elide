@@ -79,7 +79,7 @@ MICRONAUT_TEST_RUNTIME_DEPS = MICRONAUT_RUNTIME_DEPS + [
         name = n.split(".")[-1],
         generates_api = True,
         processor_class = n,
-        deps = MICRONAUT_BASE_DEPS + MICRONAUT_EXTRA_PROCESSOR_DEPS,
+        deps = MICRONAUT_BASE_DEPS + MICRONAUT_EXTRA_PROCESSOR_DEPS + MICRONAUT_EXTRA_GRAALVM_DEPS,
     )
     for n in ANNOTATION_PROCESSORS
 ]

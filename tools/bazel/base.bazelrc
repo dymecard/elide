@@ -28,7 +28,7 @@ build --strategy=SwiftCompile=sandboxed
 build --javacopt='--release 11'
 build --javacopt="-encoding UTF-8"
 build --use_ijars
-build --java_header_compilation
+build --nojava_header_compilation
 build --interface_shared_objects
 build --enable_platform_specific_config
 build --client_env=CC=clang
