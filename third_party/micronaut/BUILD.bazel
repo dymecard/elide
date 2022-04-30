@@ -52,7 +52,6 @@ MICRONAUT_EXTRA_GRAALVM_DEPS = [
     maven("io.micronaut:micronaut-jackson-core"),
     maven("io.micronaut:micronaut-jackson-databind"),
     maven("io.micronaut:micronaut-graal"),
-    maven("org.graalvm.nativeimage:svm"),
 ]
 
 MICRONAUT_TEST_DEPS = MICRONAUT_BASE_DEPS + [
