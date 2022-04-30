@@ -31,7 +31,9 @@ kt_kotlinc_options(
     name = "kt_kotlinc_options_default",
     warn = "report",
     java_parameters = True,
-    x_multi_platform = True,
+    x_optin = [
+        "kotlin.RequiresOptIn",
+    ],
 )
 
 kt_javac_options(

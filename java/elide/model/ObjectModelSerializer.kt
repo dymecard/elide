@@ -696,9 +696,9 @@ class ObjectModelSerializer<Model : Message>
       field.name
     } else {
       if (!descriptor.name.endsWith("s")) {
-        "${descriptor.name.toLowerCase()}s"
+        "${descriptor.name.lowercase()}s"
       } else {
-        descriptor.name.toLowerCase()
+        descriptor.name.lowercase()
       }
     }
   }

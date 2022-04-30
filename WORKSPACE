@@ -287,9 +287,9 @@ load("@com_google_protobuf//:protobuf_deps.bzl", "PROTOBUF_MAVEN_ARTIFACTS")
 
 protobuf_deps()
 
-rules_kotlin_version = "v1.5.0"  # v1.5.0
+rules_kotlin_version = "v1.6.0-RC1"  # v1.6.0-RC1
 
-rules_kotlin_sha = "12d22a3d9cbcf00f2e2d8f0683ba87d3823cb8c7f6837568dd7e48846e023307"
+rules_kotlin_sha = "f1a4053eae0ea381147f5056bb51e396c5c494c7f8d50d0dee4cc2f9d5c701b0"
 
 http_archive(
     name = "io_bazel_rules_kotlin",
