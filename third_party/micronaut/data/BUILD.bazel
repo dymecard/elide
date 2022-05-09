@@ -29,6 +29,10 @@ load(
     "MICRONAUT_DATA_HIKARI_RUNTIME_DEPS",
     "MICRONAUT_DATA_JDBC_EXPORTS",
     "MICRONAUT_DATA_JPA_EXPORTS",
+    "MICRONAUT_DATA_JCACHE_DEPS",
+    "MICRONAUT_DATA_JCACHE_RUNTIME_DEPS",
+    "MICRONAUT_DATA_GRAALVM_DEPS",
+    "MICRONAUT_DATA_GRAALVM_RUNTIME_DEPS",
 )
 load(
     "@rules_java//java:defs.bzl",
@@ -55,6 +59,18 @@ java_library(
     name = "hikari",
     exports = MICRONAUT_DATA_HIKARI_DEPS,
     runtime_deps = MICRONAUT_DATA_HIKARI_RUNTIME_DEPS
+)
+
+java_library(
+    name = "jcache",
+    exports = MICRONAUT_DATA_JCACHE_DEPS,
+    runtime_deps = MICRONAUT_DATA_JCACHE_RUNTIME_DEPS
+)
+
+java_library(
+    name = "graalvm",
+    exports = MICRONAUT_DATA_GRAALVM_DEPS,
+    runtime_deps = MICRONAUT_DATA_GRAALVM_RUNTIME_DEPS
 )
 
 java_library(

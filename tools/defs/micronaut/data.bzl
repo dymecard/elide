@@ -47,13 +47,11 @@ MICRONAUT_DATA_JPA_EXPORTS = [
 MICRONAUT_DATA_HIBERNATE_DEPS = [
     _maven("org.hibernate:hibernate-core"),
     _maven("org.hibernate:hibernate-hikaricp"),
-    _maven("org.hibernate:hibernate-jcache"),
     _maven("io.micronaut.data:micronaut-data-tx-hibernate"),
 ]
 
 MICRONAUT_DATA_HIBERNATE_RUNTIME_DEPS = [
     _maven("org.hibernate:hibernate-hikaricp"),
-    _maven("org.hibernate:hibernate-jcache"),
 ]
 
 MICRONAUT_DATA_HIKARI_DEPS = [
@@ -62,6 +60,22 @@ MICRONAUT_DATA_HIKARI_DEPS = [
 
 MICRONAUT_DATA_HIKARI_RUNTIME_DEPS = [
     _maven("com.zaxxer:HikariCP"),
+]
+
+MICRONAUT_DATA_JCACHE_DEPS = [
+    _maven("org.hibernate:hibernate-jcache"),
+]
+
+MICRONAUT_DATA_JCACHE_RUNTIME_DEPS = [
+    _maven("org.hibernate:hibernate-jcache"),
+]
+
+MICRONAUT_DATA_GRAALVM_DEPS = [
+    _maven("org.hibernate:hibernate-graalvm"),
+]
+
+MICRONAUT_DATA_GRAALVM_RUNTIME_DEPS = [
+    _maven("org.hibernate:hibernate-graalvm"),
 ]
 
 MICRONAUT_DATA_ENGINES = [
