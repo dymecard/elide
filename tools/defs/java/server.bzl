@@ -93,7 +93,6 @@ JVM_FLAGS = select({
     "//conditions:default": BASE_JVM_FLAGS,
 })
 
-
 def server_binary(
         name,
         srcs = [],
@@ -119,8 +118,10 @@ def server_binary(
         jvm_image_repository = None,
         native_image_base = None,
         native_image_repository = None,
+        native_include_resources = None,
         **kwargs):
     """Wraps a Kotlin-enabled JVM server binary target."""
+
     ## Wiring: Assets
     libdeps = []
     if len(assets) > 0:
@@ -128,7 +129,8 @@ def server_binary(
             name = "%s.assets" % name,
             resource_strip_prefix = resource_strip_prefix or native.package_name(),
             resources = [
-                "%s.manifest" % (n) for n in assets
+                "%s.manifest" % (n)
+                for n in assets
             ],
         )
         libdeps.append(
@@ -187,10 +189,12 @@ def server_binary(
     _graal_binary(
         name = "%s.native" % name,
         main_class = main_class,
-        include_resources = ".*",
+        include_resources = native_include_resources,
         native_image_features = native_image_features,
         graal_extra_args = graal_extra_args,
-        deps = [":%s.jvm" % name] + libdeps + NATIVE_IMAGE_COMPILE_DEPS,
+        deps = [
+            ":%s.jvm" % name,
+        ] + libdeps + (native_bin_deps or []) + NATIVE_IMAGE_COMPILE_DEPS,
     )
     if optimized:
         native.alias(
@@ -245,10 +249,10 @@ def _join_cmd(strings):
        building up large results.
        This is mostly equivalent to " ".join(strings), except for handling select
        statements correctly."""
-    result = ''
+    result = ""
     first = True
     for string in strings:
-        if type(string) == 'select':
+        if type(string) == "select":
             result += string
         else:
             result += str(string)
@@ -279,11 +283,11 @@ def server_assets(
 
             # should we reference the rewrite maps?
             if enable_renaming:
-                bundle_inputs.append("--css=\"%s:$(locations %s) $(locations %s.css.json)\""
-                                    % (module, css_modules[module], css_modules[module]))
+                bundle_inputs.append("--css=\"%s:$(locations %s) $(locations %s.css.json)\"" %
+                                     (module, css_modules[module], css_modules[module]))
             else:
-                bundle_inputs.append("--css=\"%s:$(locations %s)\""
-                                     % (module, css_modules[module]))
+                bundle_inputs.append("--css=\"%s:$(locations %s)\"" %
+                                     (module, css_modules[module]))
 
     extension = "tar"
     if compress:
@@ -305,7 +309,8 @@ def server_assets(
         "--precompress",
         "--variants=IDENTITY" + (
             (ASSETS_ENABLE_GZIP and ",GZIP" or "") +
-            (ASSETS_ENABLE_BROTLI and ",BROTLI" or "")),
+            (ASSETS_ENABLE_BROTLI and ",BROTLI" or "")
+        ),
         (enable_renaming and "--rewrite-maps") or ("--no-rewrite-maps"),
     ]
 
@@ -313,22 +318,27 @@ def server_assets(
         name = "%s.manifest" % name,
         outs = [ASSET_MANIFEST_PATH],
         srcs = [
-            target for (entry, target) in js_modules.items()
+            target
+            for (entry, target) in js_modules.items()
         ] + [
-            target for (entry, target) in css_modules.items()
+            target
+            for (entry, target) in css_modules.items()
         ] + (enable_renaming and [
-            ("%s.css.json" % target) for (entry, target) in css_modules.items()
+            ("%s.css.json" % target)
+            for (entry, target) in css_modules.items()
         ] or []),
         # ends up as `./asset_bundler.sh --output='-' (...) --css="module.here:some/file.css some/file.css" --`
         cmd = _join_cmd([
-          "./$(location @elide//tools/bundler)", " ",
-          "--", select({
-              "@elide//tools/defs/conditions:debug": "dbg",
-              "@elide//tools/defs/conditions:release": "opt",
-              "//conditions:default": "dbg",
-          }),
-          " ",
-          " ".join(bundler_args + bundle_inputs),
+            "./$(location @elide//tools/bundler)",
+            " ",
+            "--",
+            select({
+                "@elide//tools/defs/conditions:debug": "dbg",
+                "@elide//tools/defs/conditions:release": "opt",
+                "//conditions:default": "dbg",
+            }),
+            " ",
+            " ".join(bundler_args + bundle_inputs),
         ]),
         message = "Generating asset manifest",
         output_to_bindir = True,
