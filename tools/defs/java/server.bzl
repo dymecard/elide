@@ -118,6 +118,8 @@ def server_binary(
         jvm_image_repository = None,
         native_image_base = None,
         native_image_repository = None,
+        native_bin_deps = [],
+        native_bin_options = {},
         native_include_resources = None,
         **kwargs):
     """Wraps a Kotlin-enabled JVM server binary target."""
@@ -195,6 +197,7 @@ def server_binary(
         deps = [
             ":%s.jvm" % name,
         ] + libdeps + (native_bin_deps or []) + NATIVE_IMAGE_COMPILE_DEPS,
+        **(native_bin_options or {})
     )
     if optimized:
         native.alias(
