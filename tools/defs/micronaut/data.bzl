@@ -28,6 +28,10 @@ MICRONAUT_DATA_DEPS = [
     _maven("io.micronaut.data:micronaut-data-model"),
     _maven("io.micronaut.data:micronaut-data-document-model"),
     _maven("io.micronaut.data:micronaut-data-tx"),
+    _maven("io.micronaut:micronaut-jackson-core"),
+    _maven("io.micronaut:micronaut-jackson-databind"),
+    _maven("com.fasterxml.jackson.core:jackson-core"),
+    _maven("com.fasterxml.jackson.core:jackson-databind"),
 ]
 
 MICRONAUT_DATA_RUNTIME_DEPS = [
