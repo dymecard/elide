@@ -33,7 +33,7 @@ load(
     _closure_proto_library = "closure_proto_library",
 )
 load(
-    "//tools/defs/model:util.bzl",
+    "//tools/defs:util.bzl",
     _target_name = "target_name",
 )
 

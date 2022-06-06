@@ -14,7 +14,7 @@
 """Provides target template definitions for multi-language API services via gRPC."""
 
 load(
-    "@elide//tools/defs/model:util.bzl",
+    "@elide//tools/defs:util.bzl",
     _target_name = "target_name",
 )
 
