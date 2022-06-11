@@ -46,7 +46,7 @@ REDIS_TEST_DEPS = [
     "//third_party/micronaut",
     "//third_party/micronaut:test",
     javaproto("//javatests/elide/model:person"),
-    maven("it.ozimov:embedded-redis"),
+    maven("com.github.kstyrc:embedded-redis"),
     maven("com.google.guava:guava"),
     maven("com.google.protobuf:protobuf-java"),
     maven("io.lettuce:lettuce-core"),
