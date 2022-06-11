@@ -22,6 +22,10 @@ load(
     "http_file",
 )
 load(
+    "@bazel_tools//tools/build_defs/repo:java.bzl",
+    "java_import_external",
+)
+load(
     "@bazel_tools//tools/build_defs/repo:git.bzl",
     "git_repository",
 )
@@ -38,80 +42,81 @@ load(
     "MICRONAUT_VERSION",
     "PROTOBUF_VERSION",
     "KOTLIN_SDK_VERSION",
+    "KOTLIN_COMPILER_VERSION",
+    "KOTLIN_COMPILER_FINGERPRINT",
 )
 
 http_archive(
     name = "com_google_protobuf",
-    sha256 = "3bd7828aa5af4b13b99c191e8b1e884ebfa9ad371b0ce264605d347f135d2568",
+    sha256 = "8b28fdd45bab62d15db232ec404248901842e5340299a57765e48abe8a80d930",
     strip_prefix = "protobuf-%s" % PROTOBUF_VERSION,
     urls = ["https://github.com/protocolbuffers/protobuf/archive/v%s.tar.gz" % PROTOBUF_VERSION],
 )
 
 http_archive(
     name = "com_google_googleapis",
-    sha256 = "8d799e239c09abd2154b56922fb1f33d139e62a205a0882639752aaaf9a89be3",
-    strip_prefix = "googleapis-f8a290120b3a67e652742a221f73778626dc3081",
-    urls = ["https://github.com/googleapis/googleapis/archive/f8a290120b3a67e652742a221f73778626dc3081.tar.gz"],
+    sha256 = "573d0cdad2c60c555f22579ebeb86d5d404f374f3b651e0843451e3497b6568f",
+    strip_prefix = "googleapis-13f9b8908d84fa85c7573223aac3ac900f1cca27",
+    urls = ["https://github.com/googleapis/googleapis/archive/13f9b8908d84fa85c7573223aac3ac900f1cca27.tar.gz"],
 )
 
 http_archive(
     name = "com_github_grpc_grpc",
-    sha256 = "de2d3168e77e5ffb27758b07e87f6066fd0d8087fe272f278771e7780e6aaacb",
+    sha256 = "a49e6ed0ef16a4b12fefad44e7aec6f6cd3843d5a0a3ba66709565b74a62f595",
     strip_prefix = "grpc-%s" % GRPC_VERSION,
     urls = ["https://github.com/grpc/grpc/archive/v%s.zip" % GRPC_VERSION],
 )
 
 http_archive(
     name = "io_grpc_grpc_java",
-    sha256 = "48b8cb8adee4b2336e9f646e17a10107b1c8de495e1302d28a17b4816d6a20ca",
+    sha256 = "2f2ca0701cf23234e512f415318bfeae00036a980f6a83574264f41c0201e5cd",
     strip_prefix = "grpc-java-%s" % GRPC_JAVA_VERSION,
     url = "https://github.com/grpc/grpc-java/archive/refs/tags/v%s.zip" % GRPC_JAVA_VERSION,
 )
 
 http_archive(
     name = "com_github_grpc_grpc_kotlin",
-    sha256 = "a1b0e40e4f4f7a88ce525cb8f729c27e2650a78b0a7f29c6b4824b0a22b4e290",
+    sha256 = "466d33303aac7e825822b402efa3dcfddd68e6f566ed79443634180bb75eab6e",
     strip_prefix = "grpc-kotlin-%s" % GRPC_KT_VERSION,
-    url = "https://github.com/grpc/grpc-kotlin/archive/%s.tar.gz" % GRPC_KT_VERSION,
+    url = "https://github.com/grpc/grpc-kotlin/archive/v%s.tar.gz" % GRPC_KT_VERSION,
 )
 
 http_archive(
     name = "com_github_grpc_grpc_web",
-    sha256 = "26e0e82a9bde617449185d546677377362cc46835014a3e663891aaf5ef1b9fe",
-    strip_prefix = "grpc-web-8c5502186445e35002697f4bd8d1b820abdbed5d",
-    url = "https://github.com/grpc/grpc-web/archive/8c5502186445e35002697f4bd8d1b820abdbed5d.tar.gz",
+    sha256 = "bf136accb7b2c90387d38ef4d6bb6e32b13a313424fa94222a62efdfb0a00da0",
+    strip_prefix = "grpc-web-3ca2e70edf468dcde057df4dd9922ba75e09f614",
+    url = "https://github.com/grpc/grpc-web/archive/3ca2e70edf468dcde057df4dd9922ba75e09f614.tar.gz",
 )
 
 http_archive(
     name = "io_grpc_grpc_proto",
-    sha256 = "3fb4f25978b16d79d663de64a304f59dcf1b60c5890376956973c8b1bae6f734",
-    strip_prefix = "grpc-proto-ab96cf12ec7ce135e03d6ea91d96213fa4cb02af",
-    urls = ["https://github.com/grpc/grpc-proto/archive/ab96cf12ec7ce135e03d6ea91d96213fa4cb02af.tar.gz"],
+    sha256 = "fe1ae9b0fba20adbb7304fc33232797354fefc13a30440e62033053bd7cdfecc",
+    strip_prefix = "grpc-proto-856582e8a94d70b79de680133da90d301736baa1",
+    urls = ["https://github.com/sgammon/grpc-proto/archive/856582e8a94d70b79de680133da90d301736baa1.tar.gz"],
 )
 
 http_archive(
     name = "proto_common",
+    build_file = "proto_common.bzl",
     sha256 = "215220fdbe924a338a789459dd630ce46f9195d3e73efeb3172e201b578a053d",
     strip_prefix = "api-common-protos-e16c55b094638b43a97edd0847614ab91e2461f7",
-    build_file = "proto_common.bzl",
     urls = ["https://github.com/googleapis/api-common-protos/archive/e16c55b094638b43a97edd0847614ab91e2461f7.tar.gz"],
 )
 
 http_archive(
     name = "safe_html_types",
+    build_file = "safe_html_types.bzl",
     sha256 = "2356090e7632f49ea581bb6f8808fa038a7433d433f3e8d7045a36f81fb39d65",
     strip_prefix = "safe-html-types-8507735457ea41a37dfa027fb176d49d5783c4ba",
-    build_file = "safe_html_types.bzl",
     urls = ["https://github.com/google/safe-html-types/archive/8507735457ea41a37dfa027fb176d49d5783c4ba.tar.gz"],
 )
 
 http_archive(
     name = "rules_proto",
-    sha256 = "66bfdf8782796239d3875d37e7de19b1d94301e8972b3cbd2446b332429b4df1",
-    strip_prefix = "rules_proto-4.0.0",
+    sha256 = "e017528fd1c91c5a33f15493e3a398181a9e821a804eb7ff5acdd1d2d6c2b18d",
+    strip_prefix = "rules_proto-4.0.0-3.20.0",
     urls = [
-        "https://mirror.bazel.build/github.com/bazelbuild/rules_proto/archive/refs/tags/4.0.0.tar.gz",
-        "https://github.com/bazelbuild/rules_proto/archive/refs/tags/4.0.0.tar.gz",
+        "https://github.com/bazelbuild/rules_proto/archive/refs/tags/4.0.0-3.20.0.tar.gz",
     ],
 )
 
@@ -149,30 +154,31 @@ http_archive(
 
 http_archive(
     name = "rules_java",
-    sha256 = "1e06f514646feda2e3b7a5341b5153f5d9319c4048533ce3024762b422ac1c2d",
-    strip_prefix = "rules_java-7a98cf2adcae6a0e2eae0d392f92ea19159fbef1",
-    url = "https://github.com/bazelbuild/rules_java/archive/7a98cf2adcae6a0e2eae0d392f92ea19159fbef1.tar.gz",
+    sha256 = "89c311d7aeae8db785977bf236d9b558e6805216280f8405f79ecd622d7595b8",
+    strip_prefix = "rules_java-18f0930765378ecbf5fd72c89fc7db270855fc2d",
+    url = "https://github.com/bazelbuild/rules_java/archive/18f0930765378ecbf5fd72c89fc7db270855fc2d.tar.gz",
 )
 
 http_archive(
     name = "io_bazel_rules_go",
-    sha256 = "d6b2513456fe2229811da7eb67a444be7785f5323c6708b38d851d2b51e54d83",
+    sha256 = "f2dcd210c7095febe54b804bb1cd3a58fe8435a909db2ec04e31542631cf715c",
     urls = [
-        "https://mirror.bazel.build/github.com/bazelbuild/rules_go/releases/download/v0.30.0/rules_go-v0.30.0.zip",
-        "https://github.com/bazelbuild/rules_go/releases/download/v0.30.0/rules_go-v0.30.0.zip",
+        "https://mirror.bazel.build/github.com/bazelbuild/rules_go/releases/download/v0.31.0/rules_go-v0.31.0.zip",
+        "https://github.com/bazelbuild/rules_go/releases/download/v0.31.0/rules_go-v0.31.0.zip",
     ],
 )
 
 http_archive(
     name = "build_bazel_rules_apple",
-    sha256 = "a5f00fd89eff67291f6cd3efdc8fad30f4727e6ebb90718f3f05bbf3c3dd5ed7",
-    url = "https://github.com/bazelbuild/rules_apple/releases/download/0.33.0/rules_apple.0.33.0.tar.gz",
+    sha256 = "12865e5944f09d16364aa78050366aca9dc35a32a018fa35f5950238b08bf744",
+    url = "https://github.com/bazelbuild/rules_apple/releases/download/0.34.2/rules_apple.0.34.2.tar.gz",
 )
 
 http_archive(
     name = "build_bazel_rules_swift",
-    sha256 = "3e52a508cdc47a7adbad36a3d2b712e282cc39cc211b0d63efcaf608961eb36b",
-    url = "https://github.com/bazelbuild/rules_swift/releases/download/0.26.0/rules_swift.0.26.0.tar.gz",
+    sha256 = "c057e768f15e25a1e118f6e6adc0ebe1bcb13484212ce9576dc4dc6d1dbebff5",
+    strip_prefix = "rules_swift-0.27.0",
+    url = "https://github.com/bazelbuild/rules_swift/archive/0.27.0.tar.gz",
 )
 
 http_archive(
@@ -184,9 +190,9 @@ http_archive(
 
 http_archive(
     name = "io_bazel_rules_docker",
-    sha256 = "85ffff62a4c22a74dbd98d05da6cf40f497344b3dbf1e1ab0a37ab2a1a6ca014",
-    strip_prefix = "rules_docker-0.23.0",
-    urls = ["https://github.com/bazelbuild/rules_docker/releases/download/v0.23.0/rules_docker-v0.23.0.tar.gz"],
+    sha256 = "59536e6ae64359b716ba9c46c39183403b01eabfbd57578e84398b4829ca499a",
+    strip_prefix = "rules_docker-0.22.0",
+    urls = ["https://github.com/bazelbuild/rules_docker/releases/download/v0.22.0/rules_docker-v0.22.0.tar.gz"],
 )
 
 http_archive(
@@ -218,37 +224,45 @@ http_archive(
 
 http_archive(
     name = "remote_java_tools",
-    sha256 = "a7ac5922ee01e8b8fcb546ffc264ef314d0a0c679328b7fa4c432e5f54a86067",
+    sha256 = "2eede49b2d80135e0ea22180f63df26db2ed4b795c1c041b25cc653d6019fbec",
     urls = [
-        "https://mirror.bazel.build/bazel_java_tools/releases/java/v11.6/java_tools-v11.6.zip",
-        "https://github.com/bazelbuild/java_tools/releases/download/java_v11.6/java_tools-v11.6.zip",
+        "https://mirror.bazel.build/bazel_java_tools/releases/java/v11.7.1/java_tools-v11.7.1.zip",
+        "https://github.com/bazelbuild/java_tools/releases/download/java_v11.7.1/java_tools-v11.7.1.zip",
     ],
 )
 
 http_archive(
     name = "remote_java_tools_linux",
-    sha256 = "15da4f84a7d39cd179acf3035d9def638eea6ba89a0ed8f4e8a8e6e1d6c8e328",
+    sha256 = "f78077f0c043d0d13c82de0ee4a99753e66bb18ec46e3601fa2a10e7f26798a8",
     urls = [
-        "https://mirror.bazel.build/bazel_java_tools/releases/java/v11.6/java_tools_linux-v11.6.zip",
-        "https://github.com/bazelbuild/java_tools/releases/download/java_v11.6/java_tools_linux-v11.6.zip",
+        "https://mirror.bazel.build/bazel_java_tools/releases/java/v11.7.1/java_tools_linux-v11.7.1.zip",
+        "https://github.com/bazelbuild/java_tools/releases/download/java_v11.7.1/java_tools_linux-v11.7.1.zip",
     ],
 )
 
 http_archive(
     name = "remote_java_tools_windows",
-    sha256 = "939f9d91f0df02851bbad8f5b1d26d24011329394cafe5668c1234e31ac2a1f7",
+    sha256 = "a7086734866505292ee4c206328c73c6af127e69bd51b98c9c186ae4b9b6d2db",
     urls = [
-        "https://mirror.bazel.build/bazel_java_tools/releases/java/v11.6/java_tools_windows-v11.6.zip",
-        "https://github.com/bazelbuild/java_tools/releases/download/java_v11.6/java_tools_windows-v11.6.zip",
+        "https://mirror.bazel.build/bazel_java_tools/releases/java/v11.7.1/java_tools_windows-v11.7.1.zip",
+        "https://github.com/bazelbuild/java_tools/releases/download/java_v11.7.1/java_tools_windows-v11.7.1.zip",
     ],
 )
 
 http_archive(
     name = "remote_java_tools_darwin",
-    sha256 = "f17ee54582b61f1ebd84c8fa2c54df796914cfbaac3cb821fb1286b55b080bc0",
+    sha256 = "4d6d388b54ad3b9aa35b30dd67af8d71c4c240df8cfb5000bbec67bdd5c53a73",
     urls = [
-        "https://mirror.bazel.build/bazel_java_tools/releases/java/v11.6/java_tools_darwin-v11.6.zip",
-        "https://github.com/bazelbuild/java_tools/releases/download/java_v11.6/java_tools_darwin-v11.6.zip",
+        "https://mirror.bazel.build/bazel_java_tools/releases/java/v11.7.1/java_tools_darwin-v11.7.1.zip",
+        "https://github.com/bazelbuild/java_tools/releases/download/java_v11.7.1/java_tools_darwin-v11.7.1.zip",
+    ],
+)
+
+java_import_external(
+    name = "org_graalvm_sdk",
+    jar_sha256 = "6d3994e14cadba8ffb4b431899266dd19e84c7543eaf9190a0e530bc79dfaed1",
+    jar_urls = [
+        "https://repo1.maven.org/maven2/org/graalvm/sdk/graal-sdk/%s/graal-sdk-%s.jar" % (GRAALVM_VERSION, GRAALVM_VERSION),
     ],
 )
 
@@ -264,8 +278,11 @@ http_archive(
 
 http_archive(
     name = "rules_pkg",
-    sha256 = "62eeb544ff1ef41d786e329e1536c1d541bb9bcad27ae984d57f18f314018e66",
-    url = "https://github.com/bazelbuild/rules_pkg/releases/download/0.6.0/rules_pkg-0.6.0.tar.gz",
+    sha256 = "8a298e832762eda1830597d64fe7db58178aa84cd5926d76d5b744d6558941c2",
+    urls = [
+        "https://mirror.bazel.build/github.com/bazelbuild/rules_pkg/releases/download/0.7.0/rules_pkg-0.7.0.tar.gz",
+        "https://github.com/bazelbuild/rules_pkg/releases/download/0.7.0/rules_pkg-0.7.0.tar.gz",
+    ],
 )
 
 load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
@@ -287,9 +304,9 @@ load("@com_google_protobuf//:protobuf_deps.bzl", "PROTOBUF_MAVEN_ARTIFACTS")
 
 protobuf_deps()
 
-rules_kotlin_version = "v1.6.0-RC1"  # v1.6.0-RC1
+rules_kotlin_version = "v1.6.0-RC-2"  # v1.6.0-RC-2
 
-rules_kotlin_sha = "f1a4053eae0ea381147f5056bb51e396c5c494c7f8d50d0dee4cc2f9d5c701b0"
+rules_kotlin_sha = "88d19c92a1fb63fb64ddb278cd867349c3b0d648b6fe9ef9a200b9abcacd489d"
 
 http_archive(
     name = "io_bazel_rules_kotlin",
@@ -299,9 +316,9 @@ http_archive(
 
 http_archive(
     name = "rules_graal",
-    sha256 = "6643ab3726d7b5b0ab49476047fcc6032c425390fa75dc6e7f54ed0c5eea0f8d",
-    strip_prefix = "rules_graal-b28894f10da85c95b803bd9f1f6e4f3bcc166aef",
-    url = "https://github.com/andyscott/rules_graal/archive/b28894f10da85c95b803bd9f1f6e4f3bcc166aef.zip",
+    sha256 = "14e6d480fb2c0f03f2331efef316d2b8e07c32d34b1ea8a0eef83ea6a15d22df",
+    strip_prefix = "rules_graal-9fd38761df4ac293f952d10379c0c3520dd9ceed",
+    url = "https://github.com/andyscott/rules_graal/archive/9fd38761df4ac293f952d10379c0c3520dd9ceed.zip",
 )
 
 RULES_JVM_EXTERNAL_TAG = "4.2"
@@ -319,8 +336,8 @@ load("@io_bazel_rules_kotlin//kotlin:repositories.bzl", "kotlin_repositories", "
 
 kotlin_repositories(
     compiler_release = kotlinc_version(
-        release = KOTLIN_SDK_VERSION,
-        sha256 = "632166fed89f3f430482f5aa07f2e20b923b72ef688c8f5a7df3aa1502c6d8ba",
+        release = KOTLIN_COMPILER_VERSION,
+        sha256 = KOTLIN_COMPILER_FINGERPRINT,
     ),
 )
 
@@ -378,10 +395,6 @@ load("@com_github_grpc_grpc//bazel:grpc_deps.bzl", "grpc_deps", "grpc_test_only_
 grpc_deps()
 
 grpc_test_only_deps()
-
-load("@com_github_grpc_grpc//bazel:grpc_extra_deps.bzl", "grpc_extra_deps")
-
-grpc_extra_deps()
 
 load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_proto_toolchains")
 
@@ -487,15 +500,30 @@ junit5_repositories()
 load("@io_bazel_rules_webtesting//web:java_repositories.bzl", "RULES_WEBTESTING_ARTIFACTS")
 
 INJECTED_JVM_ARTIFACTS = (
-    [i for i in RULES_WEBTESTING_ARTIFACTS if (not "guava" in i and not "gson" in i)] +
+    [i for i in RULES_WEBTESTING_ARTIFACTS if (
+        not "guava" in i and
+        not "gson" in i and
+        not "truth" in i and
+        not "coroutines" in i and
+        not "error_prone" in i and
+        not "auto-value" in i
+    )] +
     [i for i in (
         IO_GRPC_GRPC_JAVA_ARTIFACTS +
         IO_GRPC_GRPC_KOTLIN_ARTIFACTS
-    ) if (not "guava" in i and not "gson" in i)]
+    ) if (
+        not "guava" in i and
+        not "gson" in i and
+        not "truth" in i and
+        not "coroutines" in i and
+        not "error_prone" in i and
+        not "auto-value" in i
+    )]
 )
 
 TEST_ARTIFACTS = [
     "io.micronaut.test:micronaut-test-junit5:3.0.5",
+    "com.github.kstyrc:embedded-redis:0.6",
 ]
 
 NEVERLINK_ARTIFACTS = [
@@ -508,33 +536,33 @@ maven_install(
     artifacts = [
         "ch.qos.logback:logback-core:1.2.10",
         "ch.qos.logback:logback-classic:1.2.10",
-        "com.fasterxml.jackson.core:jackson-annotations:2.13.2",
-        "com.fasterxml.jackson.core:jackson-core:2.13.2",
-        "com.fasterxml.jackson.core:jackson-databind:2.13.2.2",
-        "com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.13.2",
-        "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.2",
-        "com.fasterxml.jackson.module:jackson-module-blackbird:2.13.2",
-        "com.fasterxml.jackson.module:jackson-module-parameter-names:2.13.2",
-        "com.google.api:api-common:2.1.4",
+        "com.fasterxml.jackson.core:jackson-annotations:2.13.3",
+        "com.fasterxml.jackson.core:jackson-core:2.13.3",
+        "com.fasterxml.jackson.core:jackson-databind:2.13.3",
+        "com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.13.3",
+        "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.3",
+        "com.fasterxml.jackson.module:jackson-module-blackbird:2.13.3",
+        "com.fasterxml.jackson.module:jackson-module-parameter-names:2.13.3",
+        "com.google.api:api-common:2.2.1",
         "com.google.api:gax:%s" % GAX_VERSION,
         "com.google.api:gax-grpc:%s" % GAX_VERSION,
-        "com.google.auto.value:auto-value:1.7.4",
-        "com.google.auto.value:auto-value-annotations:1.7.4",
+        "com.google.auto.value:auto-value:1.9",
+        "com.google.auto.value:auto-value-annotations:1.9",
         "com.google.code.findbugs:jsr305:3.0.2",
-        "com.google.code.gson:gson:2.8.9",
-        "com.google.cloud:google-cloud-core:2.5.6",
-        "com.google.cloud:google-cloud-core-grpc:2.5.6",
-        "com.google.cloud:google-cloud-firestore:3.0.19",
-        "com.google.cloud:google-cloud-spanner:6.21.2",
-        "com.google.cloud:google-cloud-redis:2.3.0",
-        "com.google.api.grpc:proto-google-cloud-firestore-v1:3.0.19",
-        "com.google.cloud:native-image-support:0.12.10",
-        "com.google.errorprone:error_prone_annotations:2.9.0",
+        "com.google.code.gson:gson:2.9.0",
+        "com.google.cloud:google-cloud-core:2.7.1",
+        "com.google.cloud:google-cloud-core-grpc:2.7.1",
+        "com.google.cloud:google-cloud-firestore:3.2.0",
+        "com.google.cloud:google-cloud-spanner:6.25.5",
+        "com.google.cloud:google-cloud-redis:2.5.0",
+        "com.google.api.grpc:proto-google-cloud-firestore-v1:3.2.0",
+        "com.google.cloud:native-image-support:0.14.1",
+        "com.google.errorprone:error_prone_annotations:2.14.0",
         "com.google.guava:failureaccess:1.0.1",
-        "com.google.guava:guava:30.1.1-android",
-        "com.google.mug:mug:5.9",
-        "com.google.mug:mug-guava:5.9",
-        "com.google.mug:mug-protobuf:5.9",
+        "com.google.guava:guava:31.1-android",
+        "com.google.mug:mug:6.1",
+        "com.google.mug:mug-guava:6.1",
+        "com.google.mug:mug-protobuf:6.1",
         "com.google.jimfs:jimfs:1.2",
         "com.google.protobuf:protobuf-java:%s" % PROTOBUF_VERSION,
         "com.google.protobuf:protobuf-java-util:%s" % PROTOBUF_VERSION,
@@ -546,7 +574,7 @@ maven_install(
         "com.nixxcode.jvmbrotli:jvmbrotli:0.2.0",
         "com.zaxxer:HikariCP:3.4.5",
         "info.picocli:picocli:4.6.3",
-        "it.ozimov:embedded-redis:0.7.1",
+        "info.picocli:picocli-codegen:4.6.3",
         "io.grpc:grpc-all:%s" % GRPC_JAVA_VERSION,
         "io.grpc:grpc-alts:%s" % GRPC_JAVA_VERSION,
         "io.grpc:grpc-android:%s" % GRPC_JAVA_VERSION,
@@ -562,9 +590,9 @@ maven_install(
         "io.grpc:grpc-protobuf:%s" % GRPC_JAVA_VERSION,
         "io.grpc:grpc-protobuf-lite:%s" % GRPC_JAVA_VERSION,
         "io.grpc:grpc-xds:%s" % GRPC_JAVA_VERSION,
-        "io.grpc:grpc-kotlin-stub:1.2.1",
+        "io.grpc:grpc-kotlin-stub:1.3.0",
         "io.reactivex.rxjava2:rxjava:2.2.21",
-        "io.lettuce:lettuce-core:6.1.6.RELEASE",
+        "io.lettuce:lettuce-core:6.1.8.RELEASE",
         "io.micronaut:micronaut-aop:%s" % MICRONAUT_VERSION,
         "io.micronaut:micronaut-core:%s" % MICRONAUT_VERSION,
         "io.micronaut:micronaut-context:%s" % MICRONAUT_VERSION,
@@ -577,47 +605,46 @@ maven_install(
         "io.micronaut:micronaut-http-server-netty:%s" % MICRONAUT_VERSION,
         "io.micronaut:micronaut-jackson-core:%s" % MICRONAUT_VERSION,
         "io.micronaut:micronaut-jackson-databind:%s" % MICRONAUT_VERSION,
-        "io.micronaut.grpc:micronaut-grpc-runtime:3.1.3",
-        "io.micronaut.data:micronaut-data-tx:3.3.0",
-        "io.micronaut.data:micronaut-data-tx-hibernate:3.3.0",
-        "io.micronaut.data:micronaut-data-runtime:3.3.0",
-        "io.micronaut.data:micronaut-data-model:3.3.0",
-        "io.micronaut.data:micronaut-data-document-model:3.3.0",
-        "io.micronaut.data:micronaut-data-processor:3.3.0",
-        "io.micronaut.data:micronaut-data-document-processor:3.3.0",
-        "io.micronaut.data:micronaut-data-jdbc:3.3.0",
-        "io.micronaut.data:micronaut-data-hibernate-jpa:3.3.0",
-        "io.micronaut.sql:micronaut-jdbc-hikari:4.2.2",
+        "io.micronaut.data:micronaut-data-tx:3.4.2",
+        "io.micronaut.data:micronaut-data-tx-hibernate:3.4.2",
+        "io.micronaut.data:micronaut-data-runtime:3.4.2",
+        "io.micronaut.data:micronaut-data-model:3.4.2",
+        "io.micronaut.data:micronaut-data-document-model:3.4.2",
+        "io.micronaut.data:micronaut-data-processor:3.4.2",
+        "io.micronaut.data:micronaut-data-document-processor:3.4.2",
+        "io.micronaut.data:micronaut-data-jdbc:3.4.2",
+        "io.micronaut.data:micronaut-data-hibernate-jpa:3.4.2",
+        "io.micronaut.sql:micronaut-jdbc-hikari:4.4.0",
+        "io.micronaut.grpc:micronaut-grpc-runtime:3.3.1",
         "io.micronaut.grpc:micronaut-grpc-server-runtime:3.1.3",
         "io.micronaut.grpc:micronaut-grpc-client-runtime:3.1.3",
-        "io.micronaut.kotlin:micronaut-kotlin-extension-functions:3.2.0",
-        "io.micronaut.kotlin:micronaut-kotlin-runtime:3.2.0",
-        "io.micronaut.redis:micronaut-redis-lettuce:5.2.0",
-        "org.hibernate:hibernate-core:5.6.8.Final",
-        "org.hibernate:hibernate-hikaricp:5.6.8.Final",
-        "org.hibernate:hibernate-jcache:5.6.8.Final",
-        "org.hibernate:hibernate-graalvm:5.6.8.Final",
+        "io.micronaut.kotlin:micronaut-kotlin-extension-functions:3.2.2",
+        "io.micronaut.kotlin:micronaut-kotlin-runtime:3.2.2",
+        "org.hibernate:hibernate-core:5.6.9.Final",
+        "org.hibernate:hibernate-hikaricp:5.6.9.Final",
+        "org.hibernate:hibernate-jcache:5.6.9.Final",
+        "org.hibernate:hibernate-graalvm:5.6.9.Final",
         "org.jetbrains:annotations:23.0.0",
-        "org.jetbrains.kotlinx:kotlinx-coroutines-core-js:1.6.0",
-        "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.0",
-        "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.0",
-        "org.jetbrains.kotlinx:kotlinx-coroutines-jdk9:1.6.0",
-        "org.jetbrains.kotlinx:kotlinx-coroutines-guava:1.6.0",
-        "org.jetbrains.kotlinx:kotlinx-coroutines-reactive:1.6.0",
-        "org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:1.6.0",
-        "org.postgresql:postgresql:42.3.3",
-        "org.reactivestreams:reactive-streams:1.0.3",
+        "org.jetbrains.kotlinx:kotlinx-coroutines-core-js:1.6.2",
+        "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.2",
+        "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.2",
+        "org.jetbrains.kotlinx:kotlinx-coroutines-jdk9:1.6.2",
+        "org.jetbrains.kotlinx:kotlinx-coroutines-guava:1.6.2",
+        "org.jetbrains.kotlinx:kotlinx-coroutines-reactive:1.6.2",
+        "org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:1.6.2",
+        "org.postgresql:postgresql:42.4.0",
+        "org.reactivestreams:reactive-streams:1.0.4",
         "org.slf4j:slf4j-api:1.7.36",
-        "org.threeten:threetenbp:1.5.2",
+        "org.threeten:threetenbp:1.6.0",
         "jakarta.inject:jakarta.inject-api:2.0.1",
         "jakarta.persistence:jakarta.persistence-api:3.0.0",
         "javax.annotation:javax.annotation-api:1.3.2",
         "javax.persistence:javax.persistence-api:2.2",
         "javax.validation:validation-api:2.0.1.Final",
-        "org.testcontainers:testcontainers:1.16.3",
-        "org.testcontainers:gcloud:1.16.3",
-        "org.testcontainers:nginx:1.16.3",
-        "org.testcontainers:junit-jupiter:1.16.3",
+        "org.testcontainers:testcontainers:1.17.2",
+        "org.testcontainers:gcloud:1.17.2",
+        "org.testcontainers:nginx:1.17.2",
+        "org.testcontainers:junit-jupiter:1.17.2",
         maven.artifact("org.graalvm.nativeimage", "svm", GRAALVM_VERSION, neverlink = True),
     ] + INJECTED_JVM_ARTIFACTS + [
         maven.artifact(

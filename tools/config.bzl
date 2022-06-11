@@ -64,7 +64,7 @@ BROWSERS_VERSION = "0.3.2"
 ## GraalVM version.
 ## ------------------------------------
 ## Assigned to the latest available CE VM.
-GRAALVM_VERSION = "22.0.0.2"
+GRAALVM_VERSION = "22.1.0"
 
 ## GraalVM JDK version.
 ## ------------------------------------
@@ -79,17 +79,28 @@ JAVA_LANGUAGE_LEVEL = "11"
 ## Kotlin language version.
 ## ------------------------------------
 ## Sets the Kotlin API version.
-KOTLIN_LANGUAGE_LEVEL = "1.6"
+KOTLIN_LANGUAGE_LEVEL = "1.7"
 
 ## Kotlin SDK version.
 ## ------------------------------------
 ## Sets the Kotlin runtime version.
-KOTLIN_SDK_VERSION = "1.6.21"
+KOTLIN_SDK_VERSION = "1.7.0"
+
+## Kotlin compiler fingerprint.
+## ------------------------------------
+## SHA-256 from JetBrains' Kotlin release page.
+KOTLIN_COMPILER_FINGERPRINT = "264b86c9d91d15a6eba0b720d759861adaab886ce37ae2dc8081af634eefba71"
+
+## Kotlin compiler version.
+## ------------------------------------
+## Sets the Kotlin compiler version to use.
+## Repo to query: `@com_github_jetbrains_kotlin`
+KOTLIN_COMPILER_VERSION = "1.7.0-RC2"
 
 ## React version.
 ## ------------------------------------
 ## Sets the version of React to use.
-REACT_VERSION = "18.0.0"
+REACT_VERSION = "18.1.0"
 
 ## Kubernetes toolchain version.
 ## ------------------------------------
@@ -104,27 +115,27 @@ K8S_PINNED = False
 ## Protobuf toolchain version.
 ## ------------------------------------
 ## Sets the version enforced throughout for Protobuf.
-PROTOBUF_VERSION = "3.19.4"
+PROTOBUF_VERSION = "3.20.1"
 
 ## gRPC toolchain version.
 ## ------------------------------------
 ## Sets the version enforced throughout for gRPC.
-GRPC_VERSION = "1.44.0"
+GRPC_VERSION = "1.46.3"
 
 ## gRPC Java version.
 ## ------------------------------------
 ## Sets the version enforced throughout for gRPC's Java layer.
-GRPC_JAVA_VERSION = "1.44.1"
+GRPC_JAVA_VERSION = "1.46.0"
 
 ## gRPC Kotlin version.
 ## ------------------------------------
 ## Sets the version enforced for gRPC's Kotlin layer.
-GRPC_KT_VERSION = "c7b29c0d7bd5b6f48788ac1ba00fcb5d8467226d"
+GRPC_KT_VERSION = "1.3.0"
 
 ## Google API Extensions version.
 ## ------------------------------------
 ## Sets the version enforced throughout for GAX and GAX-gRPC.
-GAX_VERSION = "2.12.2"
+GAX_VERSION = "2.18.1"
 
 ## Apache Beam SDK version.
 ## ------------------------------------
@@ -164,12 +175,12 @@ ENABLE_ANDROID = False
 ## Google Cloud SDK.
 ## ------------------------------------
 ## Version of the Google Cloud SDK to use and install.
-GCLOUD_VERSION = "376.0.0"
+GCLOUD_VERSION = "388.0.0"
 
 ## Micronaut.
 ## ------------------------------------
 ## Server-side framework version.
-MICRONAUT_VERSION = "3.4.2"
+MICRONAUT_VERSION = "3.5.1"
 
 ## iOS Version.
 ## ------------------------------------
