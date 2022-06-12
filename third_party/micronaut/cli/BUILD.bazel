@@ -32,7 +32,7 @@ load(
         name = n.split(".")[-1],
         generates_api = True,
         processor_class = n,
-        deps = MICRONAUT_CLI_DEPS,
+        deps = MICRONAUT_CLI_DEPS + MICRONAUT_CLI_PROCESSOR_DEPS,
     )
     for n in MICRONAUT_CLI_PROCESSORS
 ]
