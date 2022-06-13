@@ -101,6 +101,12 @@ enum FieldType {
 
   // This field represents an entity version.
   VERSION = 9;
+
+  // This field represents a URL or username slug of some kind.
+  SLUG = 10;
+
+  // This field represents the record's display name.
+  DISPLAY_NAME = 11;
 }
 
 
