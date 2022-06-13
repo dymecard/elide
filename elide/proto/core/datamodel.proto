@@ -98,6 +98,9 @@ enum FieldType {
 
   // This field represents a full key path in hierarchical storage.
   PATH = 8;
+
+  // This field represents an entity version.
+  VERSION = 9;
 }
 
 
